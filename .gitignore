@@ -1,0 +1,9 @@
+/output/
+arm-gcc-link_default.ld
+Schematics/BOM.txt
+*.dch~
+*.dip~
+*.dipb0
+*.dipb1
+*.o
+/Logitech_SP_Adapter/Debug/
