@@ -61,9 +61,9 @@ SPI_HandleTypeDef hspi1;
 
 #define Y_AXIS			(axis[0] & 0xffffu)
 #define X_AXIS			(axis[1] & 0xffffu)
-#define T_AXIS			(axis[2] & 0xffffu)
-#define B_AXIS			(axis[3] & 0xffffu)
-#define C_AXIS			(axis[4] & 0xffffu)
+#define B_AXIS			(axis[2] & 0xffffu)
+#define C_AXIS			(axis[3] & 0xffffu)
+#define T_AXIS			(axis[4] & 0xffffu)
 
 static volatile uint32_t axis[5] = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
 
@@ -122,7 +122,9 @@ int main(void)
   MX_USB_DEVICE_Init();
 
   /* USER CODE BEGIN 2 */
-
+  HAL_ADC_Start(&hadc);
+  if (HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5) == HAL_ERROR) {
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -130,9 +132,6 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-	  HAL_ADC_Start(&hadc);
-	  HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
-
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
 	  HAL_Delay(1);
 
@@ -294,9 +293,6 @@ static void MX_ADC_Init(void)
 
 // ADC DMA interrupt handler
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
-
-    HAL_ADC_Stop_DMA(hadc);
-    HAL_ADC_Stop(hadc);
 
     if (Y_AXIS < Y_AXIS_LOW_TH) { // stick towards player
 
