@@ -7,3 +7,4 @@ Schematics/BOM.txt
 *.dipb1
 *.o
 /Logitech_SP_Adapter/Debug/
+/Debug

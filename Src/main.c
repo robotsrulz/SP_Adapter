@@ -35,7 +35,7 @@
 #include "usb_device.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "usbd_hid.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -45,8 +45,40 @@ DMA_HandleTypeDef hdma_adc;
 SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
 
+#define Y_AXIS_LOW_TH	400
+#define Y_AXIS_HIGH_TH	2800
+#define X_AXIS_LOW_TH	1400
+#define X_AXIS_HIGH_TH	2600
+
+//#define Y_AXIS			(axis[0] & 0xffffu)
+//#define X_AXIS			(axis[0] >> 16)
+//#define T_AXIS			(axis[1] & 0xffffu)
+//#define B_AXIS			(axis[1] >> 16)
+//#define C_AXIS			(axis[2] & 0xffffu)
+//
+//static volatile uint32_t axis[3] = { 0, 0, 0 };    // Y, X, T, B, C
+
+#define Y_AXIS			(axis[0] & 0xffffu)
+#define X_AXIS			(axis[1] & 0xffffu)
+#define T_AXIS			(axis[2] & 0xffffu)
+#define B_AXIS			(axis[3] & 0xffffu)
+#define C_AXIS			(axis[4] & 0xffffu)
+
+static volatile uint32_t axis[5] = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
+
+static volatile uint8_t  rx_buffer[2];
+
+struct __packed
+{
+	uint8_t		id;			// 0x01
+	uint8_t		buttons;	// red + black
+	uint8_t		gears;		// 1-7 (reverse)
+	uint8_t		d_pad;		// lower 4 bits
+	uint16_t	axis[3];
+} report;
+
+/* Private variables ---------------------------------------------------------*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -58,6 +90,7 @@ static void MX_ADC_Init(void);
 static void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN PFP */
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
 /* Private function prototypes -----------------------------------------------*/
 
 /* USER CODE END PFP */
@@ -97,6 +130,43 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
+	  HAL_ADC_Start(&hadc);
+	  HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
+
+	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
+	  HAL_Delay(1);
+
+	  switch(HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000)) {
+	      case HAL_OK:
+    	  	  if (rx_buffer[0] & 4)   report.buttons |= 1; else report.buttons &= ~1;
+    	  	  if (rx_buffer[0] & 1)   report.buttons |= (1 << 1); else report.buttons &= ~(1 << 1);
+    	  	  if (rx_buffer[0] & 2)   report.buttons |= (1 << 2); else report.buttons &= ~(1 << 2);
+    	  	  if (rx_buffer[0] & 8)   report.buttons |= (1 << 3); else report.buttons &= ~(1 << 3);
+
+      	  	  if (rx_buffer[1] & 1)   report.d_pad |= 1; else report.d_pad &= ~1;
+       	  	  if (rx_buffer[1] & 2)   report.d_pad |= (1 << 1); else report.d_pad &= ~(1 << 1);
+       	  	  if (rx_buffer[1] & 4)   report.d_pad |= (1 << 2); else report.d_pad &= ~(1 << 2);
+       	  	  if (rx_buffer[1] & 8)   report.d_pad |= (1 << 3); else report.d_pad &= ~(1 << 3);
+
+    	  	  if (rx_buffer[1] & 32)  report.buttons |= (1 << 4); else report.buttons &= ~(1 << 4);
+    	  	  if (rx_buffer[1] & 128) report.buttons |= (1 << 5); else report.buttons &= ~(1 << 5);
+    	  	  if (rx_buffer[1] & 64)  report.buttons |= (1 << 6); else report.buttons &= ~(1 << 6);
+    	  	  if (rx_buffer[1] & 16)  report.buttons |= (1 << 7); else report.buttons &= ~(1 << 7);
+	    	   break;
+
+		  case HAL_TIMEOUT:
+		  case HAL_BUSY:
+		  case HAL_ERROR:
+				Error_Handler();
+				report.buttons = 0xff;
+				break;
+	  }
+
+	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+  	  report.id = 0x01;
+
+	  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
+	  HAL_Delay(1);
 
   /* USER CODE BEGIN 3 */
 
@@ -165,10 +235,10 @@ static void MX_ADC_Init(void)
   hadc.Init.Resolution = ADC_RESOLUTION_12B;
   hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
-  hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.DMAContinuousRequests = DISABLE;
@@ -182,7 +252,7 @@ static void MX_ADC_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -222,6 +292,53 @@ static void MX_ADC_Init(void)
 
 }
 
+// ADC DMA interrupt handler
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
+
+    HAL_ADC_Stop_DMA(hadc);
+    HAL_ADC_Stop(hadc);
+
+    if (Y_AXIS < Y_AXIS_LOW_TH) { // stick towards player
+
+		if (X_AXIS < X_AXIS_LOW_TH) {
+			report.gears = 2; // 2nd gear
+		} else {
+
+			if (X_AXIS > X_AXIS_HIGH_TH) {
+
+				report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
+			} else {
+				report.gears = 8; // 4th gear
+			}
+
+		}
+
+	} else {
+		if (Y_AXIS > Y_AXIS_HIGH_TH) { // stick opposite to player
+
+			if (X_AXIS < X_AXIS_LOW_TH) {
+				report.gears = 1; // 1st gear
+			} else {
+				if (X_AXIS > X_AXIS_HIGH_TH) {
+
+					report.gears = 16; // 5th gear
+				} else {
+					report.gears = 4; // 3rd gear
+				}
+			}
+
+		} else {
+			report.gears = 0; // neutral
+		}
+
+	}
+
+	report.axis[0] = T_AXIS;
+	report.axis[1] = B_AXIS;
+	report.axis[2] = C_AXIS;
+}
+
+
 /* SPI1 init function */
 static void MX_SPI1_Init(void)
 {
@@ -229,7 +346,7 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
