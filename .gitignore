@@ -8,3 +8,5 @@ Schematics/BOM.txt
 *.o
 /Logitech_SP_Adapter/Debug/
 /Debug
+
+Logitech_SP_Adapter.cogui
