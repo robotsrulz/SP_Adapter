@@ -12,6 +12,9 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 Once it's ready I will provide "stable" binary firmware as well as firmware source. Stay tuned...
 
+## Obtaining the board
+
+
 ## License
 
 This project is licensed under the BSD License - see the [LICENSE](LICENSE) file for details
