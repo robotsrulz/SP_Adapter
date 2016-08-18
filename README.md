@@ -14,6 +14,7 @@ Once it's ready I will provide "stable" binary firmware as well as firmware sour
 
 ## Obtaining the board
 
+The board will soon be available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I will also sell a small amount of the boards assembled manually by myself.
 
 ## License
 
