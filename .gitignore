@@ -1,6 +1,7 @@
 /output/
 arm-gcc-link_default.ld
 Schematics/BOM.txt
+Schematics/OGLdpf.log
 *.dch~
 *.dip~
 *.dipb0
