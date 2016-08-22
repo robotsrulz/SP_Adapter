@@ -12,6 +12,10 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 Once it's ready I will provide "stable" binary firmware as well as firmware source. Stay tuned...
 
+## Obtaining the board
+
+The board will soon be available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I will also sell a small amount of the boards assembled manually by myself.
+
 ## License
 
 This project is licensed under the BSD License - see the [LICENSE](LICENSE) file for details
