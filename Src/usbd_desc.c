@@ -56,14 +56,14 @@
 /** @defgroup USBD_DESC_Private_Defines
   * @{
   */ 
-#define USBD_VID     1155
-#define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID_FS     22315
-#define USBD_PRODUCT_STRING_FS     "STM32 Human interface"
-#define USBD_SERIALNUMBER_STRING_FS     "00000000001A"
-#define USBD_CONFIGURATION_STRING_FS     "HID Config"
-#define USBD_INTERFACE_STRING_FS     "HID Interface"
+#define USBD_VID					0x1209	// see http://pid.codes/
+#define USBD_LANGID_STRING			1033
+#define USBD_MANUFACTURER_STRING	"InterBiometrics"
+#define USBD_PID_FS					0xF00D  // see http://pid.codes/1209/F00D/
+#define USBD_PRODUCT_STRING_FS		"Shifter/Pedals Adapter"
+#define USBD_SERIALNUMBER_STRING_FS	"00000000001A"
+#define USBD_CONFIGURATION_STRING_FS "HID Config"
+#define USBD_INTERFACE_STRING_FS	"HID Interface"
 
 /* USER CODE BEGIN 0 */
 
