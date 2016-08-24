@@ -16,6 +16,10 @@ Once it's ready I will provide "stable" binary firmware as well as firmware sour
 
 The board will soon be available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I will also sell a small amount of the boards assembled manually by myself.
 
+## USB VID/PID
+
+The board uses VID 0x1209 (InterBiometrics) / PID 0xF00D to identify itself, see [pid.codes](http://pid.codes/1209/F00D/) database.
+
 ## License
 
 This project is licensed under the BSD License - see the [LICENSE](LICENSE) file for details
