@@ -59,11 +59,11 @@ SPI_HandleTypeDef hspi1;
 //
 //static volatile uint32_t axis[3] = { 0, 0, 0 };    // Y, X, T, B, C
 
-#define Y_AXIS			(axis[0] & 0xffffu)
-#define X_AXIS			(axis[1] & 0xffffu)
-#define B_AXIS			(axis[2] & 0xffffu)
-#define C_AXIS			(axis[3] & 0xffffu)
-#define T_AXIS			(axis[4] & 0xffffu)
+#define X_AXIS			(axis[0] & 0xffffu)
+#define Y_AXIS			(axis[1] & 0xffffu)
+#define T_AXIS			(axis[2] & 0xffffu)
+#define B_AXIS			(axis[3] & 0xffffu)
+#define C_AXIS			(axis[4] & 0xffffu)
 
 static volatile uint32_t axis[5] = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
 
@@ -123,15 +123,15 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
-  HAL_ADC_Start(&hadc);
+//  HAL_ADC_Start(&hadc);
 
 //  while(ADC_IS_CONVERSION_ONGOING_REGULAR(&hadc) != RESET)
 //	  HAL_Delay(1);
 
-  if (ADC_IS_CONVERSION_ONGOING_REGULAR(&hadc) != RESET){
+//  if (ADC_IS_CONVERSION_ONGOING_REGULAR(&hadc) != RESET){
 //  if (status == 5) {
-	  report.axis[2] = 3071;
-  }
+//	  report.axis[2] = 3071;
+//  }
 
   HAL_StatusTypeDef status = HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
 
@@ -209,7 +209,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 
   RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
-  RCC_OscInitStruct.HSI14CalibrationValue = 16;
+  RCC_OscInitStruct.HSI14CalibrationValue = RCC_HSI14CALIBRATION_DEFAULT;
+
 //  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 //  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -260,7 +261,6 @@ static void MX_ADC_Init(void)
     */
   hadc.Instance = ADC1;
   hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-//  hadc.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc.Init.Resolution = ADC_RESOLUTION_12B;
   hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
@@ -268,13 +268,11 @@ static void MX_ADC_Init(void)
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
   hadc.Init.ContinuousConvMode = ENABLE;
-//  hadc.Init.ContinuousConvMode = DISABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc.Init.SamplingTimeCommon = ADC_SAMPLETIME_7CYCLES_5;
+  hadc.Init.SamplingTimeCommon = ADC_SAMPLETIME_28CYCLES_5;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.DMAContinuousRequests = ENABLE;
-//  hadc.Init.DMAContinuousRequests = DISABLE;
   hadc.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   if (HAL_ADC_Init(&hadc) != HAL_OK)
   {
@@ -423,7 +421,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
+//  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
