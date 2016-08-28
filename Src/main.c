@@ -46,8 +46,8 @@ SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
-#define Y_AXIS_LOW_TH	400
-#define Y_AXIS_HIGH_TH	2800
+#define Y_AXIS_LOW_TH	500
+#define Y_AXIS_HIGH_TH	2600
 #define X_AXIS_LOW_TH	1400
 #define X_AXIS_HIGH_TH	2600
 
@@ -254,7 +254,7 @@ static void MX_ADC_Init(void)
   hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc.Init.SamplingTimeCommon = ADC_SAMPLETIME_28CYCLES_5;
+  hadc.Init.SamplingTimeCommon = ADC_SAMPLETIME_239CYCLES_5;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.DMAContinuousRequests = ENABLE;
   hadc.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
