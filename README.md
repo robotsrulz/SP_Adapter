@@ -8,7 +8,7 @@ I am aware that some shops already sell similar adapters. Unfortunately these de
 
 Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder contains Gerber files as well as DipTrace source files. 
 
-![Adapter](Schematics/adapter.png)
+![Adapter](Schematics/adapter.jpg)
 
 Once it's ready I will provide "stable" binary firmware as well as firmware source. Stay tuned...
 
