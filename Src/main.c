@@ -138,23 +138,27 @@ int main(void)
 
 	  switch(status) {
 	      case HAL_OK:
-	    	  report.buttons = 0xf0;
+	    	  report.buttons = 0x00;
+	    	  report.d_pad = 0x00;
 
-    	  	  if (rx_buffer[0] & 4)   report.buttons |= 1; else report.buttons &= ~1;
-    	  	  if (rx_buffer[0] & 1)   report.buttons |= (1 << 1); else report.buttons &= ~(1 << 1);
-    	  	  if (rx_buffer[0] & 2)   report.buttons |= (1 << 2); else report.buttons &= ~(1 << 2);
-    	  	  if (rx_buffer[0] & 8)   report.buttons |= (1 << 3); else report.buttons &= ~(1 << 3);
+	    	  if (rx_buffer[0] & 0xff != 0xff) { // if all bits of rx_buffer[0] is 1 assume shifter is disconnected
 
-      	  	  if (rx_buffer[1] & 1)   report.d_pad |= 1; else report.d_pad &= ~1;
-       	  	  if (rx_buffer[1] & 2)   report.d_pad |= (1 << 1); else report.d_pad &= ~(1 << 1);
-       	  	  if (rx_buffer[1] & 4)   report.d_pad |= (1 << 2); else report.d_pad &= ~(1 << 2);
-       	  	  if (rx_buffer[1] & 8)   report.d_pad |= (1 << 3); else report.d_pad &= ~(1 << 3);
+				  if (rx_buffer[0] & 4)   report.buttons |= 1; else report.buttons &= ~1;
+				  if (rx_buffer[0] & 1)   report.buttons |= (1 << 1); else report.buttons &= ~(1 << 1);
+				  if (rx_buffer[0] & 2)   report.buttons |= (1 << 2); else report.buttons &= ~(1 << 2);
+				  if (rx_buffer[0] & 8)   report.buttons |= (1 << 3); else report.buttons &= ~(1 << 3);
 
-    	  	  if (rx_buffer[1] & 32)  report.buttons |= (1 << 4); else report.buttons &= ~(1 << 4);
-    	  	  if (rx_buffer[1] & 128) report.buttons |= (1 << 5); else report.buttons &= ~(1 << 5);
-    	  	  if (rx_buffer[1] & 64)  report.buttons |= (1 << 6); else report.buttons &= ~(1 << 6);
-    	  	  if (rx_buffer[1] & 16)  report.buttons |= (1 << 7); else report.buttons &= ~(1 << 7);
-	    	   break;
+				  if (rx_buffer[1] & 1)   report.d_pad |= 1; else report.d_pad &= ~1;
+				  if (rx_buffer[1] & 2)   report.d_pad |= (1 << 1); else report.d_pad &= ~(1 << 1);
+				  if (rx_buffer[1] & 4)   report.d_pad |= (1 << 2); else report.d_pad &= ~(1 << 2);
+				  if (rx_buffer[1] & 8)   report.d_pad |= (1 << 3); else report.d_pad &= ~(1 << 3);
+
+				  if (rx_buffer[1] & 32)  report.buttons |= (1 << 4); else report.buttons &= ~(1 << 4);
+				  if (rx_buffer[1] & 128) report.buttons |= (1 << 5); else report.buttons &= ~(1 << 5);
+				  if (rx_buffer[1] & 64)  report.buttons |= (1 << 6); else report.buttons &= ~(1 << 6);
+				  if (rx_buffer[1] & 16)  report.buttons |= (1 << 7); else report.buttons &= ~(1 << 7);
+	    	  }
+	    	  break;
 
 		  case HAL_TIMEOUT:
 		  case HAL_BUSY:
