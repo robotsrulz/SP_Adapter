@@ -122,7 +122,7 @@ int main(void)
   MX_USB_DEVICE_Init();
 
   /* USER CODE BEGIN 2 */
-  HAL_StatusTypeDef status = HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
+  HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,7 +141,7 @@ int main(void)
 	    	  report.buttons = 0x00;
 	    	  report.d_pad = 0x00;
 
-	    	  if (rx_buffer[0] & 0xff != 0xff) { // if all bits of rx_buffer[0] is 1 assume shifter is disconnected
+	    	  if ((rx_buffer[0] & 0xff) != 0xff) { // if all bits of rx_buffer[0] is 1 assume shifter is disconnected
 
 				  if (rx_buffer[0] & 4)   report.buttons |= 1; else report.buttons &= ~1;
 				  if (rx_buffer[0] & 1)   report.buttons |= (1 << 1); else report.buttons &= ~(1 << 1);
