@@ -65,9 +65,8 @@ SPI_HandleTypeDef hspi1;
 #define B_AXIS			(axis[3] & 0xffffu)
 #define C_AXIS			(axis[4] & 0xffffu)
 
-static volatile uint32_t axis[5] = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
-
-static volatile uint8_t  rx_buffer[2];
+__ALIGN_BEGIN static volatile uint32_t axis[5] __ALIGN_END = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
+__ALIGN_BEGIN static volatile uint8_t rx_buffer[2] __ALIGN_END;
 
 struct __packed
 {
@@ -191,19 +190,19 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSI48;
-//  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
+//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSE;
+//  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSI48;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 
   RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
   RCC_OscInitStruct.HSI14CalibrationValue = RCC_HSI14CALIBRATION_DEFAULT;
 
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
-  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
+//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+//  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+//  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -212,8 +211,8 @@ void SystemClock_Config(void)
 
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI48;
+//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI48;
 
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -223,8 +222,8 @@ void SystemClock_Config(void)
   }
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
-//  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+//  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
 
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -350,7 +349,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	}
 
 	report.axis[0] = T_AXIS;
-//    report.axis[0] = 2047;
 	report.axis[1] = B_AXIS;
 	report.axis[2] = C_AXIS;
 }
@@ -438,9 +436,9 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler */
   /* User can add his own implementation to report the HAL error return state */
-//  while(1)
-//  {
-//  }
+  while(1)
+  {
+  }
   /* USER CODE END Error_Handler */ 
 }
 
