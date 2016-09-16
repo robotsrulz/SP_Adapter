@@ -74,7 +74,7 @@ struct __packed
 	uint8_t		buttons;	// red + black
 	uint8_t		gears;		// 1-7 (reverse)
 	uint8_t		d_pad;		// lower 4 bits
-	uint16_t	axis[3];
+	uint16_t	axis[5];
 } report;
 
 /* Private variables ---------------------------------------------------------*/
@@ -348,11 +348,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 	}
 
-	report.axis[0] = T_AXIS;
-	report.axis[1] = B_AXIS;
-	report.axis[2] = C_AXIS;
-}
+	report.axis[0] = X_AXIS;
+	report.axis[1] = Y_AXIS;
 
+	report.axis[2] = T_AXIS;
+	report.axis[3] = B_AXIS;
+	report.axis[4] = C_AXIS;
+}
 
 /* SPI1 init function */
 static void MX_SPI1_Init(void)
