@@ -261,6 +261,19 @@ __ALIGN_BEGIN static uint8_t HID_JOY_ReportDesc[HID_JOY_REPORT_DESC_SIZE]  __ALI
 	0x95, 0x05,                    //     REPORT_COUNT (5)
 	0x81, 0x02,                    //     INPUT (Data,Var,Abs)
 	0xc0,                          //   END_COLLECTION
+
+    0x85, 0x02,                    //   REPORT_ID (2)
+    0x09, 0x01,                    //   USAGE (Vendor Usage 1)
+    0x75, 0x10,                    //   REPORT_SIZE (16)
+    0x95, 0x05,                    //   REPORT_COUNT (5)
+    0x81, 0x82,                    //   INPUT (Data,Var,Abs,Vol)
+
+    0x85, 0x03,                    //   REPORT_ID (3)
+    0x09, 0x02,                    //   USAGE (Vendor Usage 2)
+    0x75, 0x10,                    //   REPORT_SIZE (16)
+    0x95, 0x05,                    //   REPORT_COUNT (5)
+    0x81, 0x82,                    //   INPUT (Data,Var,Abs,Vol)
+
 	0xc0                           // END_COLLECTION
 }; 
 
