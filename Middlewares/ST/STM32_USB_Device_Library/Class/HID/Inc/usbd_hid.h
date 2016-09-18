@@ -52,7 +52,10 @@
 #define HID_EPIN_ADDR                 0x81
 #define HID_EPIN_SIZE                 0x0a
 
-#define USB_HID_CONFIG_DESC_SIZ       34
+#define HID_EPOUT_ADDR                0x01
+#define HID_EPOUT_SIZE                0x40
+
+#define USB_HID_CONFIG_DESC_SIZ       41
 #define USB_HID_DESC_SIZ              9
 #define HID_JOY_REPORT_DESC_SIZE      110
 
@@ -93,8 +96,19 @@ typedef struct
   uint32_t             IdleState;  
   uint32_t             AltSetting;
   HID_StateTypeDef     state;  
+
+  uint8_t              HIDRxBuffer[HID_EPOUT_SIZE];
+  uint32_t             HIDRxLength;
 }
 USBD_HID_HandleTypeDef; 
+
+extern unsigned short x_low_th;
+extern unsigned short y_low_th;
+extern unsigned short x_high_th;
+extern unsigned short y_high_th;
+
+extern unsigned short report2send;
+
 /**
   * @}
   */ 

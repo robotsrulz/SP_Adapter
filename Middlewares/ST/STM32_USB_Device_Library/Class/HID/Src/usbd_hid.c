@@ -108,6 +108,8 @@ static uint8_t  *USBD_HID_GetCfgDesc (uint16_t *length);
 static uint8_t  *USBD_HID_GetDeviceQualifierDesc (uint16_t *length);
 
 static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum);
+
+static uint8_t  USBD_HID_DataOut (USBD_HandleTypeDef *pdev,	uint8_t epnum);
 /**
   * @}
   */ 
@@ -124,7 +126,7 @@ USBD_ClassTypeDef  USBD_HID =
 	NULL, /*EP0_TxSent*/
 	NULL, /*EP0_RxReady*/
 	USBD_HID_DataIn, /*DataIn*/
-	NULL, /*DataOut*/
+	USBD_HID_DataOut, /*DataOut*/
 	NULL, /*SOF */
 	NULL,
 	NULL,
@@ -155,7 +157,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_
 	USB_DESC_TYPE_INTERFACE,/*bDescriptorType: Interface descriptor type*/
 	0x00,         /*bInterfaceNumber: Number of Interface*/
 	0x00,         /*bAlternateSetting: Alternate setting*/
-	0x01,         /*bNumEndpoints*/
+	0x02,         /*bNumEndpoints*/
 	0x03,         /*bInterfaceClass: HID*/
 	0x01,         /*bInterfaceSubClass : 1=BOOT, 0=no boot*/
 	0x00,         /*nInterfaceProtocol : 0=none, 1=keyboard, 2=mouse*/
@@ -178,10 +180,21 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_
 
 	HID_EPIN_ADDR,     /*bEndpointAddress: Endpoint Address (IN)*/
 	0x03,          /*bmAttributes: Interrupt endpoint*/
-	HID_EPIN_SIZE, /*wMaxPacketSize: 1 Byte max */
+	HID_EPIN_SIZE, /*wMaxPacketSize:*/
 	0x00,
 	HID_FS_BINTERVAL,          /*bInterval: Polling Interval */
+    /******************** Descriptor of Joystick OUT endpoint ********************/
 	/* 34 */
+    0x07,          /*bLength: Endpoint Descriptor size*/
+    USB_DESC_TYPE_ENDPOINT, /*bDescriptorType:*/
+
+	HID_EPOUT_ADDR,/*bEndpointAddress: Endpoint Address (OUT)*/
+	0x03,          /*bmAttributes: Interrupt endpoint*/
+	HID_EPOUT_SIZE, /*wMaxPacketSize:*/
+	0x00,
+	HID_FS_BINTERVAL,/*bInterval: Polling Interval */
+	/************** Descriptor of Joystick interface ****************/
+	/* 41 */
 } ;
 
 /* USB HID device Configuration Descriptor */
@@ -266,7 +279,7 @@ __ALIGN_BEGIN static uint8_t HID_JOY_ReportDesc[HID_JOY_REPORT_DESC_SIZE]  __ALI
     0x09, 0x01,                    //   USAGE (Vendor Usage 1)
     0x75, 0x10,                    //   REPORT_SIZE (16)
     0x95, 0x05,                    //   REPORT_COUNT (5)
-    0x81, 0x82,                    //   INPUT (Data,Var,Abs,Vol)
+    0x91, 0x82,                    //   OUTPUT (Data,Var,Abs,Vol)
 
     0x85, 0x03,                    //   REPORT_ID (3)
     0x09, 0x02,                    //   USAGE (Vendor Usage 2)
@@ -302,7 +315,12 @@ static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev,
   USBD_LL_OpenEP(pdev,
                  HID_EPIN_ADDR,
                  USBD_EP_TYPE_INTR,
-                 HID_EPIN_SIZE);  
+                 HID_EPIN_SIZE);
+
+  USBD_LL_OpenEP(pdev,
+                 HID_EPOUT_ADDR,
+                 USBD_EP_TYPE_INTR,
+                 HID_EPOUT_SIZE);
   
   pdev->pClassData = USBD_malloc(sizeof (USBD_HID_HandleTypeDef));
   
@@ -313,6 +331,11 @@ static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev,
   else
   {
     ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state = HID_IDLE;
+
+    USBD_LL_PrepareReceive(pdev,
+    		HID_EPOUT_ADDR,
+        	((USBD_HID_HandleTypeDef *)pdev->pClassData)->HIDRxBuffer,
+            HID_EPOUT_SIZE);
   }
   return ret;
 }
@@ -328,8 +351,8 @@ static uint8_t  USBD_HID_DeInit (USBD_HandleTypeDef *pdev,
                                  uint8_t cfgidx)
 {
   /* Close HID EPs */
-  USBD_LL_CloseEP(pdev,
-                  HID_EPIN_ADDR);
+  USBD_LL_CloseEP(pdev, HID_EPIN_ADDR);
+  USBD_LL_CloseEP(pdev, HID_EPOUT_ADDR);
   
   /* FRee allocated memory */
   if(pdev->pClassData != NULL)
@@ -445,9 +468,10 @@ uint8_t USBD_HID_SendReport     (USBD_HandleTypeDef  *pdev,
                         HID_EPIN_ADDR,                                      
                         report,
                         len);
+      return USBD_OK;
     }
   }
-  return USBD_OK;
+  return USBD_FAIL;
 }
 
 /**
@@ -509,6 +533,53 @@ static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev,
   return USBD_OK;
 }
 
+/**
+  * @brief  USBD_HID_DataOut
+  *         Data received on non-control Out endpoint
+  * @param  pdev: device instance
+  * @param  epnum: endpoint number
+  * @retval status
+  */
+
+static uint8_t  USBD_HID_DataOut (USBD_HandleTypeDef *pdev,
+								uint8_t epnum)
+{
+	USBD_HID_HandleTypeDef *h = (USBD_HID_HandleTypeDef *)pdev->pClassData;
+
+    /* USB data will be immediately processed, this allow next USB traffic being
+	NAKed till the end of the application Xfer */
+	if(h != NULL)
+	{
+		h->HIDRxLength = USBD_LL_GetRxDataSize (pdev, epnum);
+
+		if (h->HIDRxBuffer[0] == 0x02) {
+
+			switch(h->HIDRxBuffer[1]) {
+			case 0x01:
+				report2send = 1;
+				break;
+
+			case 0x02:
+				x_low_th  = h->HIDRxBuffer[3] + ((unsigned short) h->HIDRxBuffer[4]  << 8);
+				x_high_th = h->HIDRxBuffer[5] + ((unsigned short) h->HIDRxBuffer[6]  << 8);
+				y_low_th  = h->HIDRxBuffer[7] + ((unsigned short) h->HIDRxBuffer[8]  << 8);
+				y_high_th = h->HIDRxBuffer[9] + ((unsigned short) h->HIDRxBuffer[10] << 8);
+
+				report2send = 2;
+				// TODO: set flag to update flash
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		USBD_LL_PrepareReceive(pdev, HID_EPOUT_ADDR, h->HIDRxBuffer, HID_EPOUT_SIZE);
+	    return USBD_OK;
+	}
+
+    return USBD_FAIL;
+}
 
 /**
 * @brief  DeviceQualifierDescriptor 

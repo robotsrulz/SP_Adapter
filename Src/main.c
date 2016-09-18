@@ -49,15 +49,7 @@ SPI_HandleTypeDef hspi1;
 #define Y_AXIS_LOW_TH	500
 #define Y_AXIS_HIGH_TH	2600
 #define X_AXIS_LOW_TH	1400
-#define X_AXIS_HIGH_TH	2600
-
-//#define Y_AXIS			(axis[0] & 0xffffu)
-//#define X_AXIS			(axis[0] >> 16)
-//#define T_AXIS			(axis[1] & 0xffffu)
-//#define B_AXIS			(axis[1] >> 16)
-//#define C_AXIS			(axis[2] & 0xffffu)
-//
-//static volatile uint32_t axis[3] = { 0, 0, 0 };    // Y, X, T, B, C
+#define X_AXIS_HIGH_TH	2500
 
 #define X_AXIS			(axis[0] & 0xffffu)
 #define Y_AXIS			(axis[1] & 0xffffu)
@@ -76,6 +68,13 @@ struct __packed
 	uint8_t		d_pad;		// lower 4 bits
 	uint16_t	axis[5];
 } report;
+
+unsigned short x_low_th  = X_AXIS_LOW_TH;
+unsigned short y_low_th  = Y_AXIS_LOW_TH;
+unsigned short x_high_th = X_AXIS_HIGH_TH;
+unsigned short y_high_th = Y_AXIS_HIGH_TH;
+
+unsigned short report2send = 0;
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE END PV */
@@ -171,7 +170,29 @@ int main(void)
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
   	  report.id = 0x01;
 
-	  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
+  	if (!report2send) {
+		  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
+	  } else {
+
+		  uint8_t buf[11];
+
+		  buf[0]  = 0x03;
+		  buf[1]  = 0x01;
+		  buf[3]  = x_low_th & 0xff;
+		  buf[4]  = x_low_th >> 8;
+		  buf[5]  = x_high_th & 0xff;
+		  buf[6]  = x_high_th >> 8;
+		  buf[7]  = y_low_th & 0xff;
+		  buf[8]  = y_low_th >> 8;
+		  buf[9]  = y_high_th & 0xff;
+		  buf[10] = y_high_th >> 8;
+
+		  if (USBD_HID_SendReport(&hUsbDeviceFS, buf, sizeof(buf)) == USBD_OK) {
+
+			  report2send = 0;
+		  }
+	  }
+  	  HAL_Delay(10);
 	  HAL_Delay(1);
 
   /* USER CODE BEGIN 3 */
@@ -313,13 +334,13 @@ static void MX_ADC_Init(void)
 // ADC DMA interrupt handler
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 
-    if (Y_AXIS < Y_AXIS_LOW_TH) { // stick towards player
+    if (Y_AXIS < y_low_th) { // stick towards player
 
-		if (X_AXIS < X_AXIS_LOW_TH) {
+		if (X_AXIS < x_low_th) {
 			report.gears = 2; // 2nd gear
 		} else {
 
-			if (X_AXIS > X_AXIS_HIGH_TH) {
+			if (X_AXIS > x_high_th) {
 
 				report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
 			} else {
@@ -329,12 +350,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 		}
 
 	} else {
-		if (Y_AXIS > Y_AXIS_HIGH_TH) { // stick opposite to player
+		if (Y_AXIS > y_high_th) { // stick opposite to player
 
-			if (X_AXIS < X_AXIS_LOW_TH) {
+			if (X_AXIS < x_low_th) {
 				report.gears = 1; // 1st gear
 			} else {
-				if (X_AXIS > X_AXIS_HIGH_TH) {
+				if (X_AXIS > x_high_th) {
 
 					report.gears = 16; // 5th gear
 				} else {
