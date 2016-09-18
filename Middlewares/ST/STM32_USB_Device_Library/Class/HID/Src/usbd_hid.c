@@ -166,7 +166,7 @@ __ALIGN_BEGIN static uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_
 	/* 18 */
 	0x09,         /*bLength: HID Descriptor size*/
 	HID_DESCRIPTOR_TYPE, /*bDescriptorType: HID*/
-	0x00,         /*bcdHID: HID Class Spec release number*/
+	0x11,         /*bcdHID: HID Class Spec release number*/
 	0x01,
 	0x00,         /*bCountryCode: Hardware target country*/
 	0x01,         /*bNumDescriptors: Number of HID class descriptors to follow*/
@@ -464,10 +464,7 @@ uint8_t USBD_HID_SendReport     (USBD_HandleTypeDef  *pdev,
     if(hhid->state == HID_IDLE)
     {
       hhid->state = HID_BUSY;
-      USBD_LL_Transmit (pdev, 
-                        HID_EPIN_ADDR,                                      
-                        report,
-                        len);
+      USBD_LL_Transmit (pdev, HID_EPIN_ADDR, report, len);
       return USBD_OK;
     }
   }

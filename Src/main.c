@@ -188,12 +188,14 @@ int main(void)
 		  buf[10] = y_high_th >> 8;
 
 		  if (USBD_HID_SendReport(&hUsbDeviceFS, buf, sizeof(buf)) == USBD_OK) {
-
 			  report2send = 0;
 		  }
 	  }
-  	  HAL_Delay(10);
-	  HAL_Delay(1);
+  	  do {
+  		  HAL_Delay(1);
+
+  	  } while (hUsbDeviceFS.pClassData
+  			  && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
 
   /* USER CODE BEGIN 3 */
 

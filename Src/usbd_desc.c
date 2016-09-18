@@ -61,7 +61,7 @@
 #define USBD_MANUFACTURER_STRING	"InterBiometrics"
 #define USBD_PID_FS					0xF00D  // see http://pid.codes/1209/F00D/
 #define USBD_PRODUCT_STRING_FS		"Shifter/Pedals Adapter"
-#define USBD_SERIALNUMBER_STRING_FS	"00000000001A"
+#define USBD_SERIALNUMBER_STRING_FS	"00000000001B"
 #define USBD_CONFIGURATION_STRING_FS "HID Config"
 #define USBD_INTERFACE_STRING_FS	"HID Interface"
 

@@ -90,17 +90,18 @@ typedef enum
 HID_StateTypeDef; 
 
 
-typedef struct
+__ALIGN_BEGIN typedef struct
 {
   uint32_t             Protocol;   
   uint32_t             IdleState;  
   uint32_t             AltSetting;
-  HID_StateTypeDef     state;  
 
   uint8_t              HIDRxBuffer[HID_EPOUT_SIZE];
   uint32_t             HIDRxLength;
+
+  HID_StateTypeDef     state;
 }
-USBD_HID_HandleTypeDef; 
+USBD_HID_HandleTypeDef __ALIGN_END;
 
 extern unsigned short x_low_th;
 extern unsigned short y_low_th;
