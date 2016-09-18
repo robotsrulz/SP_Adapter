@@ -187,6 +187,8 @@ int main(void)
 		  buf[9]  = y_high_th & 0xff;
 		  buf[10] = y_high_th >> 8;
 
+		  HAL_Delay(50); // wait SP_Profiler to read all previous packets
+
 		  if (USBD_HID_SendReport(&hUsbDeviceFS, buf, sizeof(buf)) == USBD_OK) {
 			  report2send = 0;
 		  }
