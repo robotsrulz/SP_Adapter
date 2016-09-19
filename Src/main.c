@@ -36,6 +36,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "usbd_hid.h"
+#include "eeprom.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -46,10 +47,10 @@ SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 
-#define Y_AXIS_LOW_TH	500
-#define Y_AXIS_HIGH_TH	2600
 #define X_AXIS_LOW_TH	1400
 #define X_AXIS_HIGH_TH	2500
+#define Y_AXIS_LOW_TH	500
+#define Y_AXIS_HIGH_TH	2600
 
 #define X_AXIS			(axis[0] & 0xffffu)
 #define Y_AXIS			(axis[1] & 0xffffu)
@@ -59,6 +60,15 @@ SPI_HandleTypeDef hspi1;
 
 __ALIGN_BEGIN static volatile uint32_t axis[5] __ALIGN_END = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
 __ALIGN_BEGIN static volatile uint8_t rx_buffer[2] __ALIGN_END;
+
+/* Virtual address defined by the user: 0xFFFF value is prohibited */
+#define X_AXIS_LOW_VADDR	0x1001
+#define X_AXIS_HIGH_VADDR	0x1002
+#define Y_AXIS_LOW_VADDR	0x1003
+#define Y_AXIS_HIGH_VADDR	0x1004
+
+__ALIGN_BEGIN uint16_t VirtAddVarTab[NB_OF_VAR] __ALIGN_END = {
+		X_AXIS_LOW_VADDR, X_AXIS_HIGH_VADDR, Y_AXIS_LOW_VADDR, Y_AXIS_HIGH_VADDR };
 
 struct __packed
 {
@@ -120,6 +130,21 @@ int main(void)
   MX_USB_DEVICE_Init();
 
   /* USER CODE BEGIN 2 */
+
+  /* Unlock the Flash Program Erase controller */
+  HAL_FLASH_Unlock();
+
+  /* EEPROM Init */
+  EE_Init();
+
+  EE_ReadVariable(VirtAddVarTab[0], &x_low_th);
+  EE_ReadVariable(VirtAddVarTab[1], &x_high_th);
+  EE_ReadVariable(VirtAddVarTab[2], &y_low_th);
+  EE_ReadVariable(VirtAddVarTab[3], &y_high_th);
+
+  /* Lock the Flash Program Erase controller */
+  HAL_FLASH_Lock();
+
   HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
   /* USER CODE END 2 */
 
@@ -187,7 +212,24 @@ int main(void)
 		  buf[9]  = y_high_th & 0xff;
 		  buf[10] = y_high_th >> 8;
 
-		  HAL_Delay(50); // wait SP_Profiler to read all previous packets
+		  if (report2send == 2) {
+
+			  /* Unlock the Flash Program Erase controller */
+			  HAL_FLASH_Unlock();
+
+			  EE_WriteVariable(VirtAddVarTab[0], x_low_th);
+			  EE_WriteVariable(VirtAddVarTab[1], x_high_th);
+			  EE_WriteVariable(VirtAddVarTab[2], y_low_th);
+			  EE_WriteVariable(VirtAddVarTab[3], y_high_th);
+
+			  /* Lock the Flash Program Erase controller */
+			  HAL_FLASH_Lock();
+
+			  HAL_Delay(10);
+
+		  } else {
+			  HAL_Delay(50); // wait SP_Profiler to read all previous packets
+		  }
 
 		  if (USBD_HID_SendReport(&hUsbDeviceFS, buf, sizeof(buf)) == USBD_OK) {
 			  report2send = 0;
