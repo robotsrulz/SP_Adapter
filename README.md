@@ -6,15 +6,24 @@ The idea behind this project is to create open and inexpensive USB HID adapter f
 
 I am aware that some shops already sell similar adapters. Unfortunately these devices are quite expensive and not open source. Also I want to practice a bit with STM32 programming :)
 
-Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder contains Gerber files as well as DipTrace source files. 
+Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder contains Gerber files as well as DipTrace source files.
+
 
 ![Adapter](Schematics/adapter.jpg)
 
-Once it's ready I will provide "stable" binary firmware as well as firmware source. Stay tuned...
+"Stable" firmware:
+
+ [hse-calibration-flash-1.2.dfu](binaries/hse-calibration-flash-1.2.dfu)
+ 
+ [hse-calibration-flash-1.2.hex](binaries/hse-calibration-flash-1.2.hex)
+
+Calibration software (Windows x86):
+
+ [SP_Profiler_1.2.exe](binaries/SP_Profiler_1.2.exe)
 
 ## Obtaining the board
 
-The board will soon be available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I will also sell a small amount of the boards assembled manually by myself.
+PCB is available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I'm also selling a small amount of the boards assembled manually by myself, contact me if you want one.
 
 ## USB VID/PID
 
