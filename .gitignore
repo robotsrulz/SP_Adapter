@@ -8,6 +8,11 @@ Schematics/OGLdpf.log
 *.dipb1
 *.o
 /Logitech_SP_Adapter/Debug/
+/Logitech_SP_Adapter/Release/
 /Debug
-
+/Release
 Logitech_SP_Adapter.cogui
+SP_Profiler/.vs/SP_Profiler/v14/.suo
+SP_Profiler/Debug/
+SP_Profiler/Release/
+SP_Profiler/ipch/
