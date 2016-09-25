@@ -59,7 +59,7 @@ SPI_HandleTypeDef hspi1;
 #define C_AXIS			(axis[4] & 0xffffu)
 
 __ALIGN_BEGIN static volatile uint32_t axis[5] __ALIGN_END = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
-__ALIGN_BEGIN static volatile uint8_t rx_buffer[2] __ALIGN_END;
+__ALIGN_BEGIN static uint8_t rx_buffer[2] __ALIGN_END;
 
 /* Virtual address defined by the user: 0xFFFF value is prohibited */
 #define X_AXIS_LOW_VADDR	0x1001
@@ -195,7 +195,42 @@ int main(void)
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
   	  report.id = 0x01;
 
-  	if (!report2send) {
+      report.axis[0] = ((X_AXIS << 2) + report.axis[0] * 96) / 100;
+      report.axis[1] = ((Y_AXIS << 2) + report.axis[1] * 96) / 100;
+
+	  if (Y_AXIS < y_low_th) { // stick towards player
+
+			if (X_AXIS < x_low_th) {
+				report.gears = 2; // 2nd gear
+			} else {
+
+				if (X_AXIS > x_high_th) {
+
+					report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
+				} else {
+					report.gears = 8; // 4th gear
+				}
+			}
+		} else {
+			if (Y_AXIS > y_high_th) { // stick opposite to player
+
+				if (X_AXIS < x_low_th) {
+					report.gears = 1; // 1st gear
+				} else {
+					if (X_AXIS > x_high_th) {
+
+						report.gears = 16; // 5th gear
+					} else {
+						report.gears = 4; // 3rd gear
+					}
+				}
+			} else {
+				report.gears = 0; // neutral
+			}
+		}
+
+
+      if (!report2send) {
 		  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
 	  } else {
 
@@ -378,49 +413,11 @@ static void MX_ADC_Init(void)
 }
 
 // ADC DMA interrupt handler
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
-    if (Y_AXIS < y_low_th) { // stick towards player
-
-		if (X_AXIS < x_low_th) {
-			report.gears = 2; // 2nd gear
-		} else {
-
-			if (X_AXIS > x_high_th) {
-
-				report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
-			} else {
-				report.gears = 8; // 4th gear
-			}
-
-		}
-
-	} else {
-		if (Y_AXIS > y_high_th) { // stick opposite to player
-
-			if (X_AXIS < x_low_th) {
-				report.gears = 1; // 1st gear
-			} else {
-				if (X_AXIS > x_high_th) {
-
-					report.gears = 16; // 5th gear
-				} else {
-					report.gears = 4; // 3rd gear
-				}
-			}
-
-		} else {
-			report.gears = 0; // neutral
-		}
-
-	}
-
-	report.axis[0] = X_AXIS;
-	report.axis[1] = Y_AXIS;
-
-	report.axis[2] = T_AXIS;
-	report.axis[3] = B_AXIS;
-	report.axis[4] = C_AXIS;
+    report.axis[2] = ((T_AXIS << 1) + report.axis[2] * 98) / 100;
+    report.axis[3] = ((B_AXIS << 1) + report.axis[3] * 98) / 100;
+    report.axis[4] = ((C_AXIS << 1) + report.axis[4] * 98) / 100;
 }
 
 /* SPI1 init function */
