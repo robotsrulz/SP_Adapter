@@ -145,6 +145,7 @@ int main(void)
   /* Lock the Flash Program Erase controller */
   HAL_FLASH_Lock();
 
+  report.gears = 0;
   HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
   /* USER CODE END 2 */
 
@@ -198,30 +199,30 @@ int main(void)
       report.axis[0] = ((X_AXIS << 2) + report.axis[0] * 96) / 100;
       report.axis[1] = ((Y_AXIS << 2) + report.axis[1] * 96) / 100;
 
-	  if (Y_AXIS < y_low_th) { // stick towards player
+	  if (report.axis[1] < y_low_th) { // stick towards player
 
-			if (X_AXIS < x_low_th) {
-				report.gears = 2; // 2nd gear
+			if (report.axis[0] < x_low_th) {
+				if (!report.gears) report.gears = 2; // 2nd gear
 			} else {
 
-				if (X_AXIS > x_high_th) {
+				if (report.axis[0] > x_high_th) {
 
-					report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
+					if (!report.gears) report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
 				} else {
-					report.gears = 8; // 4th gear
+					if (!report.gears) report.gears = 8; // 4th gear
 				}
 			}
 		} else {
-			if (Y_AXIS > y_high_th) { // stick opposite to player
+			if (report.axis[1] > y_high_th) { // stick opposite to player
 
-				if (X_AXIS < x_low_th) {
-					report.gears = 1; // 1st gear
+				if (report.axis[0] < x_low_th) {
+					if (!report.gears) report.gears = 1; // 1st gear
 				} else {
-					if (X_AXIS > x_high_th) {
+					if (report.axis[0] > x_high_th) {
 
-						report.gears = 16; // 5th gear
+						if (!report.gears) report.gears = 16; // 5th gear
 					} else {
-						report.gears = 4; // 3rd gear
+						if (!report.gears) report.gears = 4; // 3rd gear
 					}
 				}
 			} else {
