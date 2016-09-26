@@ -13,9 +13,9 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 "Stable" firmware:
 
- [hse-calibration-flash-1.2.dfu](binaries/hse-calibration-flash-1.2.dfu)
+ [hse-gear-check-1.4.dfu](binaries/hse-gear-check-1.4.dfu)
  
- [hse-calibration-flash-1.2.hex](binaries/hse-calibration-flash-1.2.hex)
+ [hse-gear-check-1.4.hex](binaries/hse-gear-check-1.4.hex)
 
 Calibration software (Windows x86):
 
