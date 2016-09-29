@@ -187,9 +187,9 @@ int main(void)
 				  if (rx_buffer[1] & 64)  report.buttons |= (1 << 6); else report.buttons &= ~(1 << 6);
 				  if (rx_buffer[1] & 16)  report.buttons |= (1 << 7); else report.buttons &= ~(1 << 7);
 
-				  if (report.buttons == 0x0f && report.d_pad == 0x01) {
+				  if (report.buttons == 6 && report.d_pad == 1) {
 					  mute_xy = 1;
-				  } else if (report.buttons == 0x0f && report.d_pad == 0x02) {
+				  } else if (report.buttons == 6 && report.d_pad == 2) {
 					  mute_xy = 0;
 				  }
 	    	  }
@@ -254,6 +254,8 @@ int main(void)
 	  } else {
 
 		  uint8_t buf[11];
+
+		  mute_xy = 0;
 
 		  buf[0]  = 0x03;
 		  buf[1]  = 0x01;
