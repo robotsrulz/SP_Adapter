@@ -86,6 +86,11 @@ unsigned short y_high_th = Y_AXIS_HIGH_TH;
 
 unsigned short report2send = 0;
 
+static int mute_xy = 0;
+
+static unsigned short x_axis = 2048;
+static unsigned short y_axis = 2048;
+
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE END PV */
 
@@ -181,6 +186,12 @@ int main(void)
 				  if (rx_buffer[1] & 128) report.buttons |= (1 << 5); else report.buttons &= ~(1 << 5);
 				  if (rx_buffer[1] & 64)  report.buttons |= (1 << 6); else report.buttons &= ~(1 << 6);
 				  if (rx_buffer[1] & 16)  report.buttons |= (1 << 7); else report.buttons &= ~(1 << 7);
+
+				  if (report.buttons == 0x0f && report.d_pad == 0x01) {
+					  mute_xy = 1;
+				  } else if (report.buttons == 0x0f && report.d_pad == 0x02) {
+					  mute_xy = 0;
+				  }
 	    	  }
 	    	  break;
 
@@ -196,16 +207,16 @@ int main(void)
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
   	  report.id = 0x01;
 
-      report.axis[0] = ((X_AXIS << 2) + report.axis[0] * 96) / 100;
-      report.axis[1] = ((Y_AXIS << 2) + report.axis[1] * 96) / 100;
+  	  x_axis = ((X_AXIS << 2) + x_axis * 96) / 100;
+      y_axis = ((Y_AXIS << 2) + y_axis * 96) / 100;
 
-	  if (report.axis[1] < y_low_th) { // stick towards player
+	  if (y_axis < y_low_th) { // stick towards player
 
-			if (report.axis[0] < x_low_th) {
+			if (x_axis < x_low_th) {
 				if (!report.gears) report.gears = 2; // 2nd gear
 			} else {
 
-				if (report.axis[0] > x_high_th) {
+				if (x_axis > x_high_th) {
 
 					if (!report.gears) report.gears = (rx_buffer[0] & 64) ? 64 : 32; // 6th gear or reverse
 				} else {
@@ -213,12 +224,12 @@ int main(void)
 				}
 			}
 		} else {
-			if (report.axis[1] > y_high_th) { // stick opposite to player
+			if (y_axis > y_high_th) { // stick opposite to player
 
-				if (report.axis[0] < x_low_th) {
+				if (x_axis < x_low_th) {
 					if (!report.gears) report.gears = 1; // 1st gear
 				} else {
-					if (report.axis[0] > x_high_th) {
+					if (x_axis > x_high_th) {
 
 						if (!report.gears) report.gears = 16; // 5th gear
 					} else {
@@ -230,6 +241,13 @@ int main(void)
 			}
 		}
 
+	    if (!mute_xy) {
+	        report.axis[0] = x_axis;
+	        report.axis[1] = y_axis;
+	    } else {
+	        report.axis[0] = 2048;
+	        report.axis[1] = 2048;
+	    }
 
       if (!report2send) {
 		  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
