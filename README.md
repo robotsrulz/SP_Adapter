@@ -13,9 +13,9 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 "Stable" firmware:
 
- [hse-xy-mute-1.5.dfu](binaries/hse-xy-mute-1.5.dfu)
+ [hse-xy-masked-2.06.dfu](binaries/hse-xy-masked-2.06.dfu)
  
- [hse-xy-mute-1.5.hex](binaries/hse-xy-mute-1.5.dfu)
+ [hse-xy-masked-2.06.hex](binaries/hse-xy-masked-2.06.dfu)
  
 ## Firmware update
 
@@ -38,10 +38,6 @@ Calibration software (Windows x86):
 3. Press Read button, the blue lines should be visible.
 4. The idea of shifter calibration is to match actual shifter X an Y potentiometer positions to gear detection zones, see illustration: ![calibration](https://habrastorage.org/files/a58/dce/3ea/a58dce3ea492499faaae6c0fd2231812.JPG)
 You can move blue lines by altering numbers in corresponding edit fields, hit Update button after each edit. Then check if shifter positions are detected correctly. Once you satisfied how shifter detects selected gear press Update and close SP_Profiler, values are stored in adapter flash memory.
-
-## Assigning controls in the game (ver 1.5)
-
-If you cannot assign controls correctly in the game because X and Y axis move with gear selection then press the following buttons on shifter simultaneously: red left + red right + d-pad up. The X and Y axis then lock and you will be able to assign gears in the game. This functionality will be changed soon...
 
 ## Obtaining the board
 
