@@ -17,7 +17,7 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
  
  [hse-xy-mute-1.5.hex](binaries/hse-xy-mute-1.5.dfu)
  
- ## Firmware update
+## Firmware update
 
 1. Disconnect the device and open the case.
 2. Place jumper BOOT0 to right position (assuming you're holding the board with USB connector down and DB9 connectors left and right. Normal position of BOOT0 jumper is left side).
@@ -31,7 +31,7 @@ Calibration software (Windows x86):
 
  [SP_Profiler_1.2.exe](binaries/SP_Profiler_1.2.exe)
  
- ## Calibration procedure
+## Calibration procedure
 
 1. Download and run SP_Profiler.exe.
 2. The board should be detected as HID-device in the drop down menu, and red cross should be visible in the calibration area.
