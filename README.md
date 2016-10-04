@@ -36,7 +36,7 @@ Calibration software (Windows x86):
 1. Download and run SP_Profiler.exe.
 2. The board should be detected as HID-device in the drop down menu, and red cross should be visible in the calibration area.
 3. Press Read button, the blue lines should be visible.
-4. The idea of shifter calibration is to match actual shifter X an Y potentiometer positions to gear detection zones, see illustration: (!calibration)[https://habrastorage.org/files/a58/dce/3ea/a58dce3ea492499faaae6c0fd2231812.JPG]
+4. The idea of shifter calibration is to match actual shifter X an Y potentiometer positions to gear detection zones, see illustration: ![calibration](https://habrastorage.org/files/a58/dce/3ea/a58dce3ea492499faaae6c0fd2231812.JPG)
 You can move blue lines by altering numbers in corresponding edit fields, hit Update button after each edit. Then check if shifter positions are detected correctly. Once you satisfied how shifter detects selected gear press Update and close SP_Profiler, values are stored in adapter flash memory.
 
 ## Assigning controls in the game (ver 1.5)
