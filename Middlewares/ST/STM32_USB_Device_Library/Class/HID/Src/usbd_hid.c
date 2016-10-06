@@ -263,8 +263,8 @@ __ALIGN_BEGIN static uint8_t HID_JOY_ReportDesc[HID_JOY_REPORT_DESC_SIZE]  __ALI
 	0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop) + 24 bytes
 	0x09, 0x01,                    //   USAGE (Pointer)
 	0xa1, 0x00,                    //   COLLECTION (Physical)
-	0x09, 0x30,                    //     USAGE (X)
-	0x09, 0x31,                    //     USAGE (Y)
+	0x09, /* 0x30, */ 0x01,        //     USAGE (/* X */ Vendor usage 1)
+	0x09, /* 0x31, */ 0x02,        //     USAGE (/* Y */ Vendor usage 2)
 	0x09, 0x33,                    //     USAGE (RX)
 	0x09, 0x34,                    //     USAGE (RY)
 	0x09, 0x35,                    //     USAGE (RZ)
