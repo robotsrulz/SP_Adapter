@@ -40,6 +40,8 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim14;
+
 ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
 
@@ -91,6 +93,8 @@ static int mute_xy = 0;
 static unsigned short x_axis = 2048;
 static unsigned short y_axis = 2048;
 
+static volatile uint32_t u100ticks = 0;
+
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE END PV */
 
@@ -101,6 +105,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_TIM14_Init(void);
 
 /* USER CODE BEGIN PFP */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
@@ -133,6 +138,7 @@ int main(void)
   MX_ADC_Init();
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
+  MX_TIM14_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -159,8 +165,14 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
+  /* USER CODE BEGIN 3 */
+
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
-	  HAL_Delay(1);
+
+	  HAL_TIM_Base_Start_IT(&htim14);
+	  while (!u100ticks) /* do nothing for 100 us */;
+	  HAL_TIM_Base_Stop_IT(&htim14);
+	  u100ticks = 0;
 
 	  HAL_StatusTypeDef status =
 			  HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000);
@@ -249,6 +261,17 @@ int main(void)
 	        report.axis[1] = 2048;
 	    }
 
+	  do {
+
+		  HAL_TIM_Base_Start_IT(&htim14);
+		  while (!u100ticks) /* do nothing for 100 us */;
+
+		  HAL_TIM_Base_Stop_IT(&htim14);
+		  u100ticks = 0;
+
+	  } while (hUsbDeviceFS.pClassData
+			  && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
+
       if (!report2send) {
 		  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
 	  } else {
@@ -291,14 +314,6 @@ int main(void)
 			  report2send = 0;
 		  }
 	  }
-  	  do {
-  		  HAL_Delay(1);
-
-  	  } while (hUsbDeviceFS.pClassData
-  			  && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
-
-  /* USER CODE BEGIN 3 */
-
   }
   /* USER CODE END 3 */
 
@@ -359,6 +374,22 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* TIM14 init function */
+static void MX_TIM14_Init(void)
+{
+
+  htim14.Instance = TIM14;
+  htim14.Init.Prescaler = 48;
+  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim14.Init.Period = 100; /* generate IRQ 48 MHz / 48 / 100 = 10,000 times per second */
+  htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
 }
 
 /* ADC init function */
@@ -441,6 +472,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
     report.axis[4] = ((C_AXIS << 1) + report.axis[4] * 98) / 100;
 }
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM14) {
+		u100ticks++;
+	}
+}
+
 /* SPI1 init function */
 static void MX_SPI1_Init(void)
 {
@@ -494,7 +532,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
-//  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
