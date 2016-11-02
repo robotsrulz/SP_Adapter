@@ -13,9 +13,9 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 "Stable" firmware:
 
- [hse-xy-masked-2.06.dfu](binaries/hse-xy-masked-2.06.dfu)
+ [hse-2.07.dfu](binaries/hse-2.07.dfu)
  
- [hse-xy-masked-2.06.hex](binaries/hse-xy-masked-2.06.dfu)
+ [hse-2.07.hex](binaries/hse-2.07.hex)
  
 ## Firmware update
 
