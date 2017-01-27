@@ -6,28 +6,27 @@ The idea behind this project is to create open and inexpensive USB HID adapter f
 
 I am aware that some shops already sell similar adapters. Unfortunately these devices are quite expensive and not open source. Also I want to practice a bit with STM32 programming :)
 
-Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder contains Gerber files as well as DipTrace source files.
-
-
-![Adapter](Schematics/adapter.jpg)
-
 "Stable" firmware:
 
- [hse-2.07.dfu](binaries/hse-2.07.dfu)
+ [bluepill-2.07.hex](binaries/bluepill-2.07.hex)
  
- [hse-2.07.hex](binaries/hse-2.07.hex)
+## Wiring G27 shifter
+
+ MOSI  - B5 - orange (5)
+ MISO  - B4 - gray   (2)
+ SCK   - B3 - purple (1)
+ nCS   - A5 - yellow (3)
+ +3.3V -    - blue   (6)
+ GND   -    - green  (7)
+ XAxis - A0 - white  (4)
+ YAxis - A1 - black  (8)
  
-## Firmware update
+## Pedals
+ Throttle - A2
+ Brake - A3
+ Clutch - A4
 
-1. Disconnect the device and open the case.
-2. Place jumper BOOT0 to right position (assuming you're holding the board with USB connector down and DB9 connectors left and right. Normal position of BOOT0 jumper is left side).
-3. Install STM DfuSe, download it here: https://goo.gl/JMUFBS (free registration required). Alternatively install it from my Google Drive: https://goo.gl/dp4XGH
-4. Connect the board to computer, it should be detected as "STM device in DFU mode"
-5. Download firmware .dfu file.
-6. Run DfuSe, mark Verify checkbox, press Choose button, select firmware image, then press Upgrade, agree to the warning message.
-7. When Progress bar turns blue firmware update is complete, disconnect the board, move jumper BOOT0 back to the left position, close the case, connect it to computer, the board should be detected as "Shifter/Pedals Adapter". Firmware update complete!
-
-Calibration software (Windows x86):
+## Calibration software (Windows x86):
 
  [SP_Profiler_1.2.exe](binaries/SP_Profiler_1.2.exe)
  
@@ -38,10 +37,6 @@ Calibration software (Windows x86):
 3. Press Read button, the blue lines should be visible.
 4. The idea of shifter calibration is to match actual shifter X an Y potentiometer positions to gear detection zones, see illustration: ![calibration](https://habrastorage.org/files/a58/dce/3ea/a58dce3ea492499faaae6c0fd2231812.JPG)
 You can move blue lines by altering numbers in corresponding edit fields, hit Update button after each edit. Then check if shifter positions are detected correctly. Once you satisfied how shifter detects selected gear press Update and close SP_Profiler, values are stored in adapter flash memory.
-
-## Obtaining the board
-
-PCB is available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I'm also selling a small amount of the boards assembled manually by myself, contact me if you want one.
 
 ## USB VID/PID
 
