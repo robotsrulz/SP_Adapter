@@ -122,11 +122,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
 // MOSI  - B5 - orange (5)
 // MISO  - B4 - gray   (2)
 // SCK   - B3 - purple (1)
-// nCS   - A4 - yellow (3)
+// nCS   - A5 - yellow (3)
 // +3.3V -    - blue   (6)
 // GND   -    - green  (7)
 // XAxis - A0 - white  (4)
 // YAxis - A1 - black  (8)
+//
+// Pedals:
+// Throttle - A2
+// Brake    - A3
+// Clutch   - A4
 
 /* USER CODE END 0 */
 
