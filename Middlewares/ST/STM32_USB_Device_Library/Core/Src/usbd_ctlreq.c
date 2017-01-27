@@ -494,68 +494,60 @@ static void USBD_SetConfig(USBD_HandleTypeDef *pdev ,
   
   static uint8_t  cfgidx;
   
-  cfgidx = (uint8_t)(req->wValue);                 
-  
+  cfgidx = (uint8_t)(req->wValue);
+
   if (cfgidx > USBD_MAX_NUM_CONFIGURATION ) 
   {            
-     USBD_CtlError(pdev , req);                              
+     USBD_CtlError(pdev , req);
+     return;
   } 
-  else 
-  {
-    switch (pdev->dev_state) 
-    {
-    case USBD_STATE_ADDRESSED:
-      if (cfgidx) 
-      {                                			   							   							   				
-        pdev->dev_config = cfgidx;
-        pdev->dev_state = USBD_STATE_CONFIGURED;
-        if(USBD_SetClassConfig(pdev , cfgidx) == USBD_FAIL)
-        {
-          USBD_CtlError(pdev , req);  
-          return;
-        }
-        USBD_CtlSendStatus(pdev);
-      }
-      else 
-      {
-         USBD_CtlSendStatus(pdev);
-      }
-      break;
-      
-    case USBD_STATE_CONFIGURED:
-      if (cfgidx == 0) 
-      {                           
-        pdev->dev_state = USBD_STATE_ADDRESSED;
-        pdev->dev_config = cfgidx;          
-        USBD_ClrClassConfig(pdev , cfgidx);
-        USBD_CtlSendStatus(pdev);
-        
-      } 
-      else  if (cfgidx != pdev->dev_config) 
-      {
-        /* Clear old configuration */
-        USBD_ClrClassConfig(pdev , pdev->dev_config);
-        
-        /* set new configuration */
-        pdev->dev_config = cfgidx;
-        if(USBD_SetClassConfig(pdev , cfgidx) == USBD_FAIL)
-        {
-          USBD_CtlError(pdev , req);  
-          return;
-        }
-        USBD_CtlSendStatus(pdev);
-      }
-      else
-      {
-        USBD_CtlSendStatus(pdev);
-      }
-      break;
-      
-    default:					
-       USBD_CtlError(pdev , req);                     
-      break;
-    }
-  }
+	switch (pdev->dev_state)
+	{
+	case USBD_STATE_ADDRESSED:
+	  if (cfgidx)
+	  {
+		pdev->dev_config = cfgidx;
+		pdev->dev_state = USBD_STATE_CONFIGURED;
+		if(USBD_SetClassConfig(pdev, cfgidx) == USBD_FAIL)
+		{
+		  USBD_CtlError(pdev, req);
+		  return;
+		}
+	  }
+      USBD_CtlSendStatus(pdev);
+	  break;
+
+	case USBD_STATE_CONFIGURED:
+	  if (cfgidx == 0)
+	  {
+		pdev->dev_state = USBD_STATE_ADDRESSED;
+		pdev->dev_config = cfgidx;
+		USBD_ClrClassConfig(pdev , cfgidx);
+		USBD_CtlSendStatus(pdev);
+
+	  }
+	  else if (cfgidx != pdev->dev_config)
+	  {
+
+		/* Clear old configuration */
+		USBD_ClrClassConfig(pdev, pdev->dev_config);
+
+		/* set new configuration */
+		pdev->dev_config = cfgidx;
+		if(USBD_SetClassConfig(pdev, cfgidx) == USBD_FAIL)
+		{
+		  USBD_CtlError(pdev, req);
+		  return;
+		}
+	  }
+      USBD_CtlSendStatus(pdev);
+	  break;
+
+	default:
+	   USBD_CtlError(pdev , req);
+	  break;
+	}
+
 }
 
 /**

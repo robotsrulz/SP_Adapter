@@ -20,7 +20,7 @@
 					<Add option="-ffunction-sections" />
 					<Add option="-Os" />
 					<Add option="-g3" />
-					<Add symbol="STM32F042x6" />
+					<Add symbol="STM32F103xE" />
 				</Compiler>
 				<Cpp>
 					<Add option="-Wall" />
@@ -48,7 +48,7 @@
 					<Add option="-ffunction-sections" />
 					<Add option="-Os" />
 					<Add option="-g2" />
-					<Add symbol="STM32F042x6" />
+					<Add symbol="STM32F103xE" />
 				</Compiler>
 				<Cpp>
 					<Add option="-fdata-sections" />
@@ -65,16 +65,16 @@
 			</Target>
 		</Build>
 		<Device>
-			<Add option="$device=cortex-m0" />
+			<Add option="$device=cortex-m3" />
 			<Add option="$stack=0x0100" />
 			<Add option="$heap=0x0200" />
-			<Add option="$lscript=./stm32f042f6_flash.ld" />
+			<Add option="$lscript=./stm32f103c8_flash.ld" />
 		</Device>
 		<Compiler>
 			<Add option="-mfloat-abi=soft" />
 			<Add option="-fno-strict-aliasing" />
-			<Add symbol="STM32F042F6" />
-			<Add symbol="STM32F0XX" />
+			<Add symbol="STM32F103C8" />
+			<Add symbol="STM32F10X_MD" />
 			<Add directory=".\inc" />
 			<Add directory=".\src" />
 			<Add directory=".\cmsis" />
@@ -83,28 +83,26 @@
 			<Add option="-eb_start_files" />
 			<Add option="-eb_lib=n" />
 		</Linker>
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f030x6.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f030x8.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f030xc.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f031x6.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f038xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f042x6.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f048xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f051x8.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f058xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f070x6.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f070xb.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f071xb.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f072xb.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f078xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f091xc.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f098xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\stm32f0xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Include\system_stm32f0xx.h" />
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\gcc\startup_stm32f042x6.s">
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f100xb.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f100xe.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f101x6.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f101xb.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f101xe.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f101xg.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f102x6.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f102xb.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103x6.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xb.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xe.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xg.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f105xc.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f107xc.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f1xx.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Include\system_stm32f1xx.h" />
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\gcc\startup_stm32f103xb.s">
 			<Option compilerVar="ASM" />
 		</Unit>
-		<Unit filename="Drivers\CMSIS\Device\ST\STM32F0xx\Source\Templates\system_stm32f0xx.c">
+		<Unit filename="Drivers\CMSIS\Device\ST\STM32F1xx\Source\Templates\system_stm32f1xx.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Drivers\CMSIS\Include\arm_common_tables.h" />
@@ -123,94 +121,88 @@
 		<Unit filename="Drivers\CMSIS\Include\core_cmSimd.h" />
 		<Unit filename="Drivers\CMSIS\Include\core_sc000.h" />
 		<Unit filename="Drivers\CMSIS\Include\core_sc300.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_adc.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_adc_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_cortex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_def.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_dma.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_dma_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_flash.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_flash_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_gpio.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_gpio_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_i2c.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_i2c_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_pcd.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_pcd_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_pwr.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_pwr_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_rcc_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_spi.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_spi_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Inc\stm32f0xx_hal_tim_ex.h" />
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_adc.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_adc_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_cortex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_def.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_dma_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_flash_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_gpio_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pcd.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pcd_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_pwr.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_spi.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_tim_ex.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_usb.h" />
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_adc.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_adc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_adc_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_adc_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_cortex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_cortex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_dma.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_dma.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_flash.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_flash_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_flash_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_gpio.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_i2c.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_gpio_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_i2c_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_pcd.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_pcd.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_pcd_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_pcd_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_pwr.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_pwr.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_pwr_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_rcc_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_rcc.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_rcc_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_spi_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_spi.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_spi_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_tim_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_tim.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_hal_tim_ex.c">
+		<Unit filename="Drivers\STM32F1xx_HAL_Driver\Src\stm32f1xx_ll_usb.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Inc\eeprom.h" />
 		<Unit filename="Inc\mxconstants.h" />
-		<Unit filename="Inc\stm32f0xx_hal_conf.h" />
-		<Unit filename="Inc\stm32f0xx_it.h" />
+		<Unit filename="Inc\stm32f1xx_hal_conf.h" />
+		<Unit filename="Inc\stm32f1xx_it.h" />
 		<Unit filename="Inc\usb_device.h" />
 		<Unit filename="Inc\usbd_conf.h" />
 		<Unit filename="Inc\usbd_desc.h" />
@@ -237,10 +229,10 @@
 		<Unit filename="Src\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Src\stm32f0xx_hal_msp.c">
+		<Unit filename="Src\stm32f1xx_hal_msp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Src\stm32f0xx_it.c">
+		<Unit filename="Src\stm32f1xx_it.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Src\usb_device.c">
@@ -252,14 +244,14 @@
 		<Unit filename="Src\usbd_desc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="STM32F042F6_FLASH.ld" />
+		<Unit filename="STM32F103C8_FLASH.ld" />
 		<Extensions>
 			<code_completion />
 			<debugger>
 				<target_debugging_settings target="Release" active_interface="J-link">
 					<debug_interface interface_id="J-link" ip_address="localhost" ip_port="2331" path="%Software\SEGGER\J-Link:InstallPath%" executable="JLinkGDBServer.exe" description="" dont_start_server="false" backoff_time="2000" options="0" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_DEVICE" opt_value="STM32F052C8" />
+							<option opt_id="ID_DEVICE" opt_value="STM32F103C8" />
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_SPEED" opt_value="1000" />
 							<option opt_id="ID_AUTO_SPEED" opt_value="1" />
@@ -283,7 +275,7 @@
 				<target_debugging_settings target="Debug" active_interface="J-link">
 					<debug_interface interface_id="J-link" ip_address="localhost" ip_port="2331" path="%Software\SEGGER\J-Link:InstallPath%" executable="JLinkGDBServer.exe" description="" dont_start_server="false" backoff_time="2000" options="0" reg_filter="0" active_family="STMicroelectronics" gdb_before_conn="" gdb_after_conn="">
 						<family_options family_id="STMicroelectronics">
-							<option opt_id="ID_DEVICE" opt_value="STM32F052C8" />
+							<option opt_id="ID_DEVICE" opt_value="STM32F103C8" />
 							<option opt_id="ID_JTAG_SWD" opt_value="swd" />
 							<option opt_id="ID_SPEED" opt_value="1000" />
 							<option opt_id="ID_AUTO_SPEED" opt_value="1" />

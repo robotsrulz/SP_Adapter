@@ -1,10 +1,14 @@
 /**
   ******************************************************************************
-  * File Name          : mxconstants.h
-  * Description        : This file contains the common defines of the application
+  * @file    system_stm32f10x.h
+  * @author  MCD Application Team
+  * @version V4.1.0
+  * @date    29-April-2016
+  * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Header File.
   ******************************************************************************
+  * @attention
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -30,40 +34,83 @@
   *
   ******************************************************************************
   */
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MXCONSTANT_H
-#define __MXCONSTANT_H
-  /* Includes ------------------------------------------------------------------*/
 
-/* USER CODE BEGIN Includes */
+/** @addtogroup CMSIS
+  * @{
+  */
 
-/* USER CODE END Includes */
+/** @addtogroup stm32f10x_system
+  * @{
+  */  
+  
+/**
+  * @brief Define to prevent recursive inclusion
+  */
+#ifndef __SYSTEM_STM32F10X_H
+#define __SYSTEM_STM32F10X_H
 
-/* Private define ------------------------------------------------------------*/
+#ifdef __cplusplus
+ extern "C" {
+#endif 
 
-#define SHIFTER_X_Pin GPIO_PIN_0
-#define SHIFTER_X_GPIO_Port GPIOA
-#define SHIFTER_Y_Pin GPIO_PIN_1
-#define SHIFTER_Y_GPIO_Port GPIOA
-#define PEDAL_1_Pin GPIO_PIN_2
-#define PEDAL_1_GPIO_Port GPIOA
-#define PEDAL_2_Pin GPIO_PIN_3
-#define PEDAL_2_GPIO_Port GPIOA
-#define PEDAL_3_Pin GPIO_PIN_4
-#define PEDAL_3_GPIO_Port GPIOA
-#define SPI_nCS_Pin GPIO_PIN_5
-#define SPI_nCS_GPIO_Port GPIOA
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
+/** @addtogroup STM32F10x_System_Includes
+  * @{
+  */
 
 /**
   * @}
   */
 
+
+/** @addtogroup STM32F10x_System_Exported_types
+  * @{
+  */
+
+extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+extern const uint8_t  AHBPrescTable[16];  /*!< AHB prescalers table values */
+extern const uint8_t  APBPrescTable[8];   /*!< APB prescalers table values */
+
 /**
   * @}
-*/
+  */
 
-#endif /* __MXCONSTANT_H */
+/** @addtogroup STM32F10x_System_Exported_Constants
+  * @{
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup STM32F10x_System_Exported_Macros
+  * @{
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup STM32F10x_System_Exported_Functions
+  * @{
+  */
+  
+extern void SystemInit(void);
+extern void SystemCoreClockUpdate(void);
+/**
+  * @}
+  */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /*__SYSTEM_STM32F10X_H */
+
+/**
+  * @}
+  */
+  
+/**
+  * @}
+  */  
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

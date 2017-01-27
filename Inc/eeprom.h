@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    EEPROM_Emulation/inc/eeprom.h 
+  * @file    EEPROM_Emulation/inc/eeprom.h
   * @author  MCD Application Team
   * @version V1.6.0
   * @date    27-May-2016
-  * @brief   This file contains all the functions prototypes for the EEPROM 
+  * @brief   This file contains all the functions prototypes for the EEPROM
   *          emulation firmware library.
   ******************************************************************************
   * @attention
@@ -34,14 +34,14 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __EEPROM_H
 #define __EEPROM_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_hal.h"
+#include "stm32f1xx_hal.h"
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -179,14 +179,14 @@
 #define PAGE_SIZE               (uint32_t)FLASH_PAGE_SIZE  /* Page size */
 
 /* EEPROM start address in Flash */
-#define EEPROM_START_ADDRESS  ((uint32_t)ADDR_FLASH_PAGE_14) /* EEPROM emulation start address */
+#define EEPROM_START_ADDRESS  ((uint32_t)ADDR_FLASH_PAGE_30) /* EEPROM emulation start address */
 
 /* Pages 0 and 1 base and end addresses */
 #define PAGE0_BASE_ADDRESS    ((uint32_t)(EEPROM_START_ADDRESS + 0x0000))
 #define PAGE0_END_ADDRESS     ((uint32_t)(EEPROM_START_ADDRESS + (PAGE_SIZE - 1)))
 
-#define PAGE1_BASE_ADDRESS    ((uint32_t)(ADDR_FLASH_PAGE_15))
-#define PAGE1_END_ADDRESS     ((uint32_t)(ADDR_FLASH_PAGE_15 + PAGE_SIZE - 1))
+#define PAGE1_BASE_ADDRESS    ((uint32_t)(ADDR_FLASH_PAGE_31))
+#define PAGE1_END_ADDRESS     ((uint32_t)(ADDR_FLASH_PAGE_31 + PAGE_SIZE - 1))
 
 /* Used Flash pages for EEPROM emulation */
 #define PAGE0                 ((uint16_t)0x0000)

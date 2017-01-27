@@ -1,7 +1,7 @@
 /**
   ******************************************************************************
-  * File Name          : mxconstants.h
-  * Description        : This file contains the common defines of the application
+  * @file    stm32f1xx_it.h
+  * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   *
   * COPYRIGHT(c) 2016 STMicroelectronics
@@ -30,40 +30,38 @@
   *
   ******************************************************************************
   */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MXCONSTANT_H
-#define __MXCONSTANT_H
-  /* Includes ------------------------------------------------------------------*/
+#ifndef __STM32F1xx_IT_H
+#define __STM32F1xx_IT_H
 
-/* USER CODE BEGIN Includes */
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
-/* USER CODE END Includes */
+/* Includes ------------------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 
-/* Private define ------------------------------------------------------------*/
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void MemManage_Handler(void);
+void BusFault_Handler(void);
+void UsageFault_Handler(void);
+void SVC_Handler(void);
+void DebugMon_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
+void TIM4_IRQHandler(void);
+void DMA1_Channel1_IRQHandler(void);
+void USB_LP_CAN1_RX0_IRQHandler(void);
 
-#define SHIFTER_X_Pin GPIO_PIN_0
-#define SHIFTER_X_GPIO_Port GPIOA
-#define SHIFTER_Y_Pin GPIO_PIN_1
-#define SHIFTER_Y_GPIO_Port GPIOA
-#define PEDAL_1_Pin GPIO_PIN_2
-#define PEDAL_1_GPIO_Port GPIOA
-#define PEDAL_2_Pin GPIO_PIN_3
-#define PEDAL_2_GPIO_Port GPIOA
-#define PEDAL_3_Pin GPIO_PIN_4
-#define PEDAL_3_GPIO_Port GPIOA
-#define SPI_nCS_Pin GPIO_PIN_5
-#define SPI_nCS_GPIO_Port GPIOA
-/* USER CODE BEGIN Private defines */
+#ifdef __cplusplus
+}
+#endif
 
-/* USER CODE END Private defines */
+#endif /* __STM32F1xx_IT_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-*/
-
-#endif /* __MXCONSTANT_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

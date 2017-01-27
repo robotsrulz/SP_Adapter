@@ -31,7 +31,7 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_hal.h"
+#include "stm32f1xx_hal.h"
 #include "usb_device.h"
 
 /* USER CODE BEGIN Includes */
@@ -40,11 +40,9 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim14;
-
-ADC_HandleTypeDef hadc;
-DMA_HandleTypeDef hdma_adc;
-
+TIM_HandleTypeDef htim4;
+ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
@@ -60,7 +58,9 @@ SPI_HandleTypeDef hspi1;
 #define B_AXIS			(axis[3] & 0xffffu)
 #define C_AXIS			(axis[4] & 0xffffu)
 
-__ALIGN_BEGIN static volatile uint32_t axis[5] __ALIGN_END = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
+/* Private variables ---------------------------------------------------------*/
+
+__ALIGN_BEGIN static volatile uint16_t axis[5] __ALIGN_END = { 0, 0, 0, 0, 0 };    // Y, X, T, B, C
 __ALIGN_BEGIN static uint8_t rx_buffer[2] __ALIGN_END;
 
 /* Virtual address defined by the user: 0xFFFF value is prohibited */
@@ -95,17 +95,19 @@ static unsigned short y_axis = 2048;
 
 static volatile uint32_t u100ticks = 0;
 
-/* Private variables ---------------------------------------------------------*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void Error_Handler(void);
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
+
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_ADC_Init(void);
+static void MX_ADC1_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_TIM14_Init(void);
+static void MX_TIM4_Init(void);
+
 
 /* USER CODE BEGIN PFP */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
@@ -115,13 +117,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
 
 /* USER CODE BEGIN 0 */
 
+// G27 shifter connection
+//
+// MOSI  - B5 - orange (5)
+// MISO  - B4 - gray   (2)
+// SCK   - B3 - purple (1)
+// nCS   - A4 - yellow (3)
+// +3.3V -    - blue   (6)
+// GND   -    - green  (7)
+// XAxis - A0 - white  (4)
+// YAxis - A1 - black  (8)
+
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -135,13 +147,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_ADC_Init();
+  MX_ADC1_Init();
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
-  MX_TIM14_Init();
+  MX_TIM4_Init();
 
   /* USER CODE BEGIN 2 */
-
   /* Unlock the Flash Program Erase controller */
   HAL_FLASH_Unlock();
 
@@ -157,21 +168,19 @@ int main(void)
   HAL_FLASH_Lock();
 
   report.gears = 0;
-  HAL_ADC_Start_DMA(&hadc, (uint32_t*)axis, 5);
+  HAL_ADC_Start_DMA(&hadc1, (uint16_t*)axis, 5);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  /* USER CODE END WHILE */
-  /* USER CODE BEGIN 3 */
+	  /* USER CODE BEGIN 3 */
+	  HAL_GPIO_WritePin(SPI_nCS_GPIO_Port, SPI_nCS_Pin, GPIO_PIN_SET);
 
-	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
-
-	  HAL_TIM_Base_Start_IT(&htim14);
+	  HAL_TIM_Base_Start_IT(&htim4);
 	  while (!u100ticks) /* do nothing for 100 us */;
-	  HAL_TIM_Base_Stop_IT(&htim14);
+	  HAL_TIM_Base_Stop_IT(&htim4);
 	  u100ticks = 0;
 
 	  HAL_StatusTypeDef status =
@@ -216,7 +225,7 @@ int main(void)
 				break;
 	  }
 
-	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(SPI_nCS_GPIO_Port, SPI_nCS_Pin, GPIO_PIN_RESET);
   	  report.id = 0x01;
 
   	  x_axis = ((X_AXIS << 2) + x_axis * 96) / 100;
@@ -263,10 +272,10 @@ int main(void)
 
 	  do {
 
-		  HAL_TIM_Base_Start_IT(&htim14);
+		  HAL_TIM_Base_Start_IT(&htim4);
 		  while (!u100ticks) /* do nothing for 100 us */;
 
-		  HAL_TIM_Base_Stop_IT(&htim14);
+		  HAL_TIM_Base_Stop_IT(&htim4);
 		  u100ticks = 0;
 
 	  } while (hUsbDeviceFS.pClassData
@@ -314,9 +323,10 @@ int main(void)
 			  report2send = 0;
 		  }
 	  }
+	  /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
 
+  /* USER CODE END WHILE */
 }
 
 /** System Clock Configuration
@@ -328,41 +338,31 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSI48;
-//  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
-
-  RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
-  RCC_OscInitStruct.HSI14CalibrationValue = RCC_HSI14CALIBRATION_DEFAULT;
-
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
-  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
-
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
 
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1;
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI48;
-
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
-//  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
-
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -376,96 +376,98 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* TIM14 init function */
-static void MX_TIM14_Init(void)
-{
-
-  htim14.Instance = TIM14;
-  htim14.Init.Prescaler = 48;
-  htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = 100; /* generate IRQ 48 MHz / 48 / 100 = 10,000 times per second */
-  htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-}
-
-/* ADC init function */
-static void MX_ADC_Init(void)
+/* ADC1 init function */
+static void MX_ADC1_Init(void)
 {
 
   ADC_ChannelConfTypeDef sConfig;
 
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+    /**Common config
     */
-  hadc.Instance = ADC1;
-  hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
-  hadc.Init.EOCSelection = ADC_EOC_SEQ_CONV;
-  hadc.Init.LowPowerAutoWait = DISABLE;
-  hadc.Init.LowPowerAutoPowerOff = DISABLE;
-  hadc.Init.ContinuousConvMode = ENABLE;
-  hadc.Init.DiscontinuousConvMode = DISABLE;
-  hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc.Init.SamplingTimeCommon = ADC_SAMPLETIME_239CYCLES_5;
-  hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc.Init.DMAContinuousRequests = ENABLE;
-  hadc.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-  if (HAL_ADC_Init(&hadc) != HAL_OK)
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 5;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+  /**Configure Regular Channel
     */
   sConfig.Channel = ADC_CHANNEL_0;
-  sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
+  sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
   sConfig.Channel = ADC_CHANNEL_1;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  sConfig.Rank = 2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
   sConfig.Channel = ADC_CHANNEL_2;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  sConfig.Rank = 3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
   sConfig.Channel = ADC_CHANNEL_3;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  sConfig.Rank = 4;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
-    */
   sConfig.Channel = ADC_CHANNEL_4;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  sConfig.Rank = 5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/* TIM4 init function */
+static void MX_TIM4_Init(void)
+{
+
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 72;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 100; /* generate IRQ 72 MHz / 72 / 100 = 10,000 times per second */
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     Error_Handler();
   }
 
 }
 
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+}
+
 // ADC DMA interrupt handler
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 
     report.axis[2] = ((T_AXIS << 1) + report.axis[2] * 98) / 100;
     report.axis[3] = ((B_AXIS << 1) + report.axis[3] * 98) / 100;
@@ -474,7 +476,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (htim->Instance == TIM14) {
+	if (htim->Instance == TIM4) {
 		u100ticks++;
 	}
 }
@@ -490,13 +492,11 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 7;
-  hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi1.Init.CRCPolynomial = 10;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -504,24 +504,9 @@ static void MX_SPI1_Init(void)
 
 }
 
-/** 
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void) 
-{
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-
-}
-
-/** Configure pins as 
-        * Analog 
-        * Input 
+/** Configure pins as
+        * Analog
+        * Input
         * Output
         * EVENT_OUT
         * EXTI
@@ -532,19 +517,28 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : SPI1_nCS_Pin */
-  GPIO_InitStruct.Pin = SPI1_nCS_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SPI_nCS_GPIO_Port, SPI_nCS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SPI_nCS_Pin */
+  GPIO_InitStruct.Pin = SPI_nCS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(SPI1_nCS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SPI_nCS_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -563,8 +557,10 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
+	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+	  HAL_Delay(250);
   }
-  /* USER CODE END Error_Handler */ 
+  /* USER CODE END Error_Handler */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -589,10 +585,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
