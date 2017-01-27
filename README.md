@@ -13,17 +13,27 @@ I am aware that some shops already sell similar adapters. Unfortunately these de
 ## Wiring G27 shifter
 
  MOSI  - B5 - orange (5)
+ 
  MISO  - B4 - gray   (2)
+ 
  SCK   - B3 - purple (1)
+ 
  nCS   - A5 - yellow (3)
+ 
  +3.3V -    - blue   (6)
+ 
  GND   -    - green  (7)
+ 
  XAxis - A0 - white  (4)
+ 
  YAxis - A1 - black  (8)
  
 ## Pedals
+
  Throttle - A2
+ 
  Brake - A3
+ 
  Clutch - A4
 
 ## Calibration software (Windows x86):
