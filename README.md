@@ -11,11 +11,15 @@ Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder 
 
 ![Adapter](Schematics/adapter.jpg)
 
-"Stable" firmware:
+"Stable" firmware for board revisions 1.0 and 1.1:
 
  [hse-2.07.dfu](binaries/hse-2.07.dfu)
  
  [hse-2.07.hex](binaries/hse-2.07.hex)
+ 
+Firmware for STM32F103C8T6 "Blue Pill" development board:
+
+ [bluepill-2.07.hex](https://github.com/robotsrulz/SP_Adapter/blob/stm32f103c8t6/binaries/bluepill-2.07.hex)
  
 ## Firmware update
 
