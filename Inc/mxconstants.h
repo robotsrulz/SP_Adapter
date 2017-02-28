@@ -53,17 +53,25 @@
 #define CLUTCH_GPIO_Port GPIOA
 #define SPI1_nCS_Pin GPIO_PIN_1
 #define SPI1_nCS_GPIO_Port GPIOB
+
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+# define SHIFTER_SEL1_Pin GPIO_PIN_6
+# define SHIFTER_SEL1_GPIO_Port GPIOB
+# define SHIFTER_SEL2_Pin GPIO_PIN_7
+# define SHIFTER_SEL2_GPIO_Port GPIOB
+#endif
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 #endif /* __MXCONSTANT_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

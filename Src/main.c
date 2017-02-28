@@ -114,18 +114,27 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+enum {
+    SHIFTER_G27 = 0,
+    SHIFTER_G25,
+
+// TODO: SHIFTER_DFP
+    SHIFTER_NONE = 255
+} connected_shifter = SHIFTER_NONE;
+
+#define RDSR    5   /* http://pdf.datasheetcatalog.com/datasheets2/60/601078_1.pdf */
+    __ALIGN_BEGIN static uint8_t tx_buffer[2] __ALIGN_END = { RDSR, 0 };
+#endif
 
 /* USER CODE END 0 */
 
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
@@ -162,10 +171,49 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  #if BOARD_REV >= 12 /* STM32F042K6T6 */
+  #endif
+
   while (1)
   {
   /* USER CODE END WHILE */
   /* USER CODE BEGIN 3 */
+
+    HAL_StatusTypeDef status;
+
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+    if (SHIFTER_NONE == connected_shifter) {
+
+        // attempt to detect G27 shifter
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_SET);
+
+        status = HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, sizeof(rx_buffer), 3000);
+        if (HAL_OK == status) {
+            if (rx_buffer[1] == 240 ) {
+
+                // G27 shifter detected
+                connected_shifter = SHIFTER_G27;
+            }
+            else {
+                // G25 or DFP
+                // TODO: DFP logic
+                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
+                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
+
+                status = HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, sizeof(rx_buffer), 3000);
+                if (HAL_OK == status) {
+                    if (rx_buffer[1] == 240 ) {
+
+                        // G25 shifter detected
+                        connected_shifter = SHIFTER_G25;
+                    }
+                }
+            }
+        }
+    }
+#endif
 
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
 
@@ -174,8 +222,7 @@ int main(void)
 	  HAL_TIM_Base_Stop_IT(&htim14);
 	  u100ticks = 0;
 
-	  HAL_StatusTypeDef status =
-			  HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000);
+	  status = HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000);
 
 	  switch(status) {
 	      case HAL_OK:
@@ -205,6 +252,11 @@ int main(void)
 					  mute_xy = 0;
 				  }
 	    	  }
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+              else {
+                connected_shifter = SHIFTER_NONE;
+              }
+#endif
 	    	  break;
 
 		  case HAL_TIMEOUT:
@@ -213,6 +265,9 @@ int main(void)
 				Error_Handler();
 		  default:
 				report.buttons = 0xff;
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+                connected_shifter = SHIFTER_NONE;
+#endif
 				break;
 	  }
 
@@ -398,7 +453,7 @@ static void MX_ADC_Init(void)
 
   ADC_ChannelConfTypeDef sConfig;
 
-    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
     */
   hadc.Instance = ADC1;
   hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
@@ -420,7 +475,7 @@ static void MX_ADC_Init(void)
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+    /**Configure for the selected ADC regular channel to be converted.
     */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
@@ -430,7 +485,7 @@ static void MX_ADC_Init(void)
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+    /**Configure for the selected ADC regular channel to be converted.
     */
   sConfig.Channel = ADC_CHANNEL_1;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
@@ -438,7 +493,7 @@ static void MX_ADC_Init(void)
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+    /**Configure for the selected ADC regular channel to be converted.
     */
   sConfig.Channel = ADC_CHANNEL_2;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
@@ -446,7 +501,7 @@ static void MX_ADC_Init(void)
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+    /**Configure for the selected ADC regular channel to be converted.
     */
   sConfig.Channel = ADC_CHANNEL_3;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
@@ -454,7 +509,7 @@ static void MX_ADC_Init(void)
     Error_Handler();
   }
 
-    /**Configure for the selected ADC regular channel to be converted. 
+    /**Configure for the selected ADC regular channel to be converted.
     */
   sConfig.Channel = ADC_CHANNEL_4;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
@@ -504,10 +559,10 @@ static void MX_SPI1_Init(void)
 
 }
 
-/** 
+/**
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
   /* DMA controller clock enable */
   __HAL_RCC_DMA1_CLK_ENABLE();
@@ -519,33 +574,38 @@ static void MX_DMA_Init(void)
 
 }
 
-/** Configure pins as 
-        * Analog 
-        * Input 
+/** Configure pins as
+        * Analog
+        * Input
         * Output
         * EVENT_OUT
         * EXTI
 */
 static void MX_GPIO_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStruct;
 
-  GPIO_InitTypeDef GPIO_InitStruct;
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+        GPIOB, SPI1_nCS_Pin|SHIFTER_SEL1_Pin|SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+    GPIO_InitStruct.Pin = SPI1_nCS_Pin|SHIFTER_SEL1_Pin|SHIFTER_SEL2_Pin;
+#else
+        SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : SPI1_nCS_Pin */
-  GPIO_InitStruct.Pin = SPI1_nCS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(SPI1_nCS_GPIO_Port, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = SPI1_nCS_Pin;
+#endif
 
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(SPI1_nCS_GPIO_Port, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
@@ -564,7 +624,7 @@ void Error_Handler(void)
   while(1)
   {
   }
-  /* USER CODE END Error_Handler */ 
+  /* USER CODE END Error_Handler */
 }
 
 #ifdef USE_FULL_ASSERT
@@ -589,10 +649,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

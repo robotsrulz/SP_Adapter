@@ -21,6 +21,7 @@
 					<Add option="-Os" />
 					<Add option="-g3" />
 					<Add symbol="STM32F042x6" />
+					<Add symbol="BOARD_REV=12" />
 				</Compiler>
 				<Cpp>
 					<Add option="-Wall" />
