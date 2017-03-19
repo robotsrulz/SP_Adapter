@@ -121,10 +121,12 @@ enum {
 
 // TODO: SHIFTER_DFP
     SHIFTER_NONE = 255
-} connected_shifter = SHIFTER_NONE;
+};
+
+volatile uint8_t connected_shifter = SHIFTER_NONE;
 
 #define RDSR    5   /* http://pdf.datasheetcatalog.com/datasheets2/60/601078_1.pdf */
-    __ALIGN_BEGIN static uint8_t tx_buffer[2] __ALIGN_END = { RDSR, 0 };
+    __ALIGN_BEGIN static const uint8_t tx_buffer[2] __ALIGN_END = { RDSR, 0 };
 #endif
 
 /* USER CODE END 0 */
@@ -172,8 +174,18 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  #if BOARD_REV >= 12 /* STM32F042K6T6 */
-  #endif
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
+/*
+        HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+
+        HAL_TIM_Base_Start_IT(&htim14);
+        while (!u100ticks) ;
+        HAL_TIM_Base_Stop_IT(&htim14);
+        u100ticks = 0;
+ */
+#endif
 
   while (1)
   {
@@ -183,15 +195,17 @@ int main(void)
     HAL_StatusTypeDef status;
 
 #if BOARD_REV >= 12 /* STM32F042K6T6 */
+
+/*
     if (SHIFTER_NONE == connected_shifter) {
 
         // attempt to detect G27 shifter
-        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
 
         status = HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, sizeof(rx_buffer), 3000);
         if (HAL_OK == status) {
-            if (rx_buffer[1] == 240 ) {
+            if (!rx_buffer[0] && rx_buffer[1]) {
 
                 // G27 shifter detected
                 connected_shifter = SHIFTER_G27;
@@ -199,12 +213,17 @@ int main(void)
             else {
                 // G25 or DFP
                 // TODO: DFP logic
-                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
-                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_SET);
+
+                HAL_TIM_Base_Start_IT(&htim14);
+                while (!u100ticks) ;
+                HAL_TIM_Base_Stop_IT(&htim14);
+                u100ticks = 0;
 
                 status = HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, sizeof(rx_buffer), 3000);
                 if (HAL_OK == status) {
-                    if (rx_buffer[1] == 240 ) {
+                    if (!rx_buffer[0] && rx_buffer[1]) {
 
                         // G25 shifter detected
                         connected_shifter = SHIFTER_G25;
@@ -213,6 +232,7 @@ int main(void)
             }
         }
     }
+*/
 #endif
 
 	  HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_SET);
@@ -223,6 +243,7 @@ int main(void)
 	  u100ticks = 0;
 
 	  status = HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000);
+	  // status = HAL_OK;
 
 	  switch(status) {
 	      case HAL_OK:
