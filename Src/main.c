@@ -69,6 +69,10 @@ __ALIGN_BEGIN static uint8_t rx_buffer[2] __ALIGN_END;
 #define Y_AXIS_LOW_VADDR	0x1003
 #define Y_AXIS_HIGH_VADDR	0x1004
 
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+# define SHIFTER_TYPE_VADDR 0x1005
+#endif
+
 __ALIGN_BEGIN uint16_t VirtAddVarTab[NB_OF_VAR] __ALIGN_END = {
 		X_AXIS_LOW_VADDR, X_AXIS_HIGH_VADDR, Y_AXIS_LOW_VADDR, Y_AXIS_HIGH_VADDR };
 
@@ -79,6 +83,10 @@ struct __packed
 	uint8_t		gears;		// 1-7 (reverse)
 	uint8_t		d_pad;		// lower 4 bits
 	uint16_t	axis[5];
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+	uint16_t    threshold[4];
+	uint8_t     sh_type;
+#endif
 } report;
 
 unsigned short x_low_th  = X_AXIS_LOW_TH;
@@ -118,12 +126,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef * hadc);
 enum {
     SHIFTER_G27 = 0,
     SHIFTER_G25,
+    SHIFTER_DFP,
 
-// TODO: SHIFTER_DFP
+    SHIFTER_AUTO = 254,
     SHIFTER_NONE = 255
 };
 
-volatile uint8_t connected_shifter = SHIFTER_NONE;
+unsigned short shifter = SHIFTER_G27;
 
 #define RDSR    5   /* http://pdf.datasheetcatalog.com/datasheets2/60/601078_1.pdf */
     __ALIGN_BEGIN static const uint8_t tx_buffer[2] __ALIGN_END = { RDSR, 0 };
@@ -163,6 +172,9 @@ int main(void)
   EE_ReadVariable(VirtAddVarTab[1], &x_high_th);
   EE_ReadVariable(VirtAddVarTab[2], &y_low_th);
   EE_ReadVariable(VirtAddVarTab[3], &y_high_th);
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+  EE_ReadVariable(VirtAddVarTab[4], &shifter);
+#endif
 
   /* Lock the Flash Program Erase controller */
   HAL_FLASH_Lock();
@@ -175,29 +187,32 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 #if BOARD_REV >= 12 /* STM32F042K6T6 */
+
+  switch(shifter) {
+  case SHIFTER_G27:
         HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_RESET);
-/*
-        HAL_GPIO_WritePin(SPI1_nCS_GPIO_Port, SPI1_nCS_Pin, GPIO_PIN_RESET);
+        break;
 
-        HAL_TIM_Base_Start_IT(&htim14);
-        while (!u100ticks) ;
-        HAL_TIM_Base_Stop_IT(&htim14);
-        u100ticks = 0;
- */
+  case SHIFTER_G25:
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL2_Pin, GPIO_PIN_SET);
+        break;
+
+  default:
+      /** Not implemented yet */
+      break;
+  }
 #endif
 
   while (1)
   {
-  /* USER CODE END WHILE */
-  /* USER CODE BEGIN 3 */
-
     HAL_StatusTypeDef status;
 
 #if BOARD_REV >= 12 /* STM32F042K6T6 */
 
 /*
-    if (SHIFTER_NONE == connected_shifter) {
+    if (SHIFTER_AUTO == connected_shifter) {
 
         // attempt to detect G27 shifter
         HAL_GPIO_WritePin(GPIOB, SHIFTER_SEL1_Pin, GPIO_PIN_SET);
@@ -243,8 +258,6 @@ int main(void)
 	  u100ticks = 0;
 
 	  status = HAL_SPI_Receive(&hspi1, rx_buffer, sizeof(rx_buffer), 3000);
-	  // status = HAL_OK;
-
 	  switch(status) {
 	      case HAL_OK:
 	    	  report.buttons = 0x00;
@@ -274,9 +287,9 @@ int main(void)
 				  }
 	    	  }
 #if BOARD_REV >= 12 /* STM32F042K6T6 */
-              else {
-                connected_shifter = SHIFTER_NONE;
-              }
+              // else {
+              //  shifter = SHIFTER_NONE;
+              // }
 #endif
 	    	  break;
 
@@ -287,7 +300,7 @@ int main(void)
 		  default:
 				report.buttons = 0xff;
 #if BOARD_REV >= 12 /* STM32F042K6T6 */
-                connected_shifter = SHIFTER_NONE;
+                // shifter = SHIFTER_NONE;
 #endif
 				break;
 	  }
@@ -337,16 +350,24 @@ int main(void)
 	        report.axis[1] = 2048;
 	    }
 
-	  do {
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+        report.threshold[0] = x_low_th;
+        report.threshold[1] = x_high_th;
+        report.threshold[2] = y_low_th;
+        report.threshold[3] = y_high_th;
 
-		  HAL_TIM_Base_Start_IT(&htim14);
-		  while (!u100ticks) /* do nothing for 100 us */;
+        report.sh_type = shifter;
+#endif
+        do {
 
-		  HAL_TIM_Base_Stop_IT(&htim14);
-		  u100ticks = 0;
+          HAL_TIM_Base_Start_IT(&htim14);
+          while (!u100ticks) /* do nothing for 100 us */;
 
-	  } while (hUsbDeviceFS.pClassData
-			  && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
+          HAL_TIM_Base_Stop_IT(&htim14);
+          u100ticks = 0;
+
+        } while (hUsbDeviceFS.pClassData
+              && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
 
       if (!report2send) {
 		  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
@@ -367,7 +388,7 @@ int main(void)
 		  buf[9]  = y_high_th & 0xff;
 		  buf[10] = y_high_th >> 8;
 
-		  if (report2send == 2) {
+		  if (report2send == 2 || report2send == 3) {
 
 			  /* Unlock the Flash Program Erase controller */
 			  HAL_FLASH_Unlock();
@@ -376,7 +397,10 @@ int main(void)
 			  EE_WriteVariable(VirtAddVarTab[1], x_high_th);
 			  EE_WriteVariable(VirtAddVarTab[2], y_low_th);
 			  EE_WriteVariable(VirtAddVarTab[3], y_high_th);
-
+#if BOARD_REV >= 12 /* STM32F042K6T6 */
+              if (report2send == 3)
+                  EE_WriteVariable(VirtAddVarTab[4], shifter);
+#endif
 			  /* Lock the Flash Program Erase controller */
 			  HAL_FLASH_Lock();
 
