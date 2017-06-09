@@ -33,7 +33,7 @@ Firmware for STM32F103C8T6 "Blue Pill" development board:
 
 Calibration software (Windows x86):
 
- [SP_Profiler_1.2.exe](binaries/SP_Profiler_1.2.exe)
+ [SP_Profiler.exe](binaries/SP_Profiler.exe)
  
 ## Calibration procedure
 

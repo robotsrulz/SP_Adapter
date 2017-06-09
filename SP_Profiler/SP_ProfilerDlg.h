@@ -48,6 +48,8 @@ protected:
 	CEdit		m_YLowTh;
 	CEdit		m_YHighTh;
 	CEdit		m_Gear;
+
+	CString		m_ShifterType;
 	
 	CSP_ReportDlg m_ReportView_frm;
 
@@ -65,4 +67,13 @@ public:
 	afx_msg void OnEnChangeYHighTh();
 	afx_msg void OnEnChangeYLowTh();
 	afx_msg void OnBnClickedRead();
+
+	afx_msg void OnEnSetFocusXLowTh();
+//	afx_msg void OnEnKillFocusXLowTh();
+	afx_msg void OnEnSetFocusXHighTh();
+//	afx_msg void OnEnKillFocusXHighTh();
+	afx_msg void OnEnSetFocusYHighTh();
+//	afx_msg void OnEnKillFocusYHighTh();
+	afx_msg void OnEnSetFocusYLowTh();
+//	afx_msg void OnEnKillFocusYLowTh();
 };

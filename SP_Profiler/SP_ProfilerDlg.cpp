@@ -25,6 +25,12 @@ HIDP_CAPS Capabilities;
 OVERLAPPED	HIDOverlapped;
 DWORD NumberOfBytesRead;
 DWORD NumberOfBytesWriten;
+PHIDD_ATTRIBUTES Attributes;
+
+volatile static bool canWriteXLowTh = true;
+volatile static bool canWriteXHighTh = true;
+volatile static bool canWriteYHighTh = true;
+volatile static bool canWriteYLowTh = true;
 
 int Use_Setxxx = 0;
 
@@ -55,6 +61,8 @@ CSP_ProfilerDlg::CSP_ProfilerDlg(CWnd* pParent /*=NULL*/)
 	m_VIDValue = _T("0xFFFF");
 	m_PIDValue = _T("0xFFFF");
 	m_VersionNumber = _T("0xFFFF");
+	m_ShifterType = _T("");
+
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 	_this = this;
@@ -69,6 +77,7 @@ void CSP_ProfilerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_VID, m_VIDValue);
 	DDX_Text(pDX, IDC_PID, m_PIDValue);
 	DDX_Text(pDX, IDC_VERSION, m_VersionNumber);
+	DDX_Text(pDX, IDC_SH_TYPE, m_ShifterType);
 	DDX_Control(pDX, IDC_X, m_XPos);
 	DDX_Control(pDX, IDC_Y, m_YPos);
 	DDX_Control(pDX, IDC_X_LOW_TH, m_XLowTh);
@@ -90,6 +99,14 @@ BEGIN_MESSAGE_MAP(CSP_ProfilerDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_X_HIGH_TH, &CSP_ProfilerDlg::OnEnChangeXHighTh)
 	ON_EN_CHANGE(IDC_Y_HIGH_TH, &CSP_ProfilerDlg::OnEnChangeYHighTh)
 	ON_EN_CHANGE(IDC_Y_LOW_TH, &CSP_ProfilerDlg::OnEnChangeYLowTh)
+	ON_EN_SETFOCUS(IDC_X_LOW_TH, &CSP_ProfilerDlg::OnEnSetFocusXLowTh)
+//	ON_EN_KILLFOCUS(IDC_X_LOW_TH, &CSP_ProfilerDlg::OnEnKillFocusXLowTh)
+	ON_EN_SETFOCUS(IDC_X_HIGH_TH, &CSP_ProfilerDlg::OnEnSetFocusXHighTh)
+//	ON_EN_KILLFOCUS(IDC_X_HIGH_TH, &CSP_ProfilerDlg::OnEnKillFocusXHighTh)
+	ON_EN_SETFOCUS(IDC_Y_HIGH_TH, &CSP_ProfilerDlg::OnEnSetFocusYHighTh)
+//	ON_EN_KILLFOCUS(IDC_Y_HIGH_TH, &CSP_ProfilerDlg::OnEnKillFocusYHighTh)
+	ON_EN_SETFOCUS(IDC_Y_LOW_TH, &CSP_ProfilerDlg::OnEnSetFocusYLowTh)
+//	ON_EN_KILLFOCUS(IDC_Y_LOW_TH, &CSP_ProfilerDlg::OnEnKillFocusYLowTh)
 	ON_WM_DEVICECHANGE()
 END_MESSAGE_MAP()
 
@@ -282,7 +299,9 @@ void CSP_ProfilerDlg::OnCbnSelchangeHidTargets()
 			   
 	if (HidDeviceObject != INVALID_HANDLE_VALUE)
 	{
-		PHIDD_ATTRIBUTES Attributes = (PHIDD_ATTRIBUTES)malloc(sizeof(HIDD_ATTRIBUTES));
+		if (!Attributes)
+			Attributes = (PHIDD_ATTRIBUTES) malloc(sizeof(HIDD_ATTRIBUTES));
+
 		if (HidD_GetAttributes(HidDeviceObject, Attributes))
 		{
 			m_PIDValue.Format(_T("0x%4X"), Attributes->ProductID);
@@ -292,6 +311,8 @@ void CSP_ProfilerDlg::OnCbnSelchangeHidTargets()
 			m_PIDValue.Replace(_T(" "), _T("0"));
 			m_VIDValue.Replace(_T(" "), _T("0"));
 			m_VersionNumber.Replace(_T(" "), _T("0"));
+
+			GetDlgItem(IDC_SH_TYPE)->SetWindowText(_T(""));
 			
 			GetDeviceCapabilities();
 			/*
@@ -412,6 +433,7 @@ void CSP_ProfilerDlg::RefreshDevices()
 
 	m_HidTargetsCtrl.SetCurSel(0);
 	OnCbnSelchangeHidTargets();
+	// GetDlgItem(IDC_READ)->EnableWindow(Attributes->VersionNumber <= 0x207);
 }
 
 DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
@@ -437,11 +459,6 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 					(LPOVERLAPPED)&HIDOverlapped);
 
 				if (Result) {
-
-					unsigned short *pxLowTh = (unsigned short *)&InputReport[3];
-					unsigned short *pxHighTh = (unsigned short *)&InputReport[5];
-					unsigned short *pyLowTh = (unsigned short *)&InputReport[7];
-					unsigned short *pyHighTh = (unsigned short *)&InputReport[9];
 
 					CString str;
 
@@ -492,10 +509,58 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 							str.Format(_T("%4u"), *(unsigned short *)&InputReport[6]);
 							str.Replace(_T(" "), _T("0"));
 							_this->m_YPos.SetWindowText(str);
+
+							if (Attributes->VersionNumber > 0x207) {
+								unsigned short *pxLowTh = (unsigned short *)&InputReport[14];
+								unsigned short *pxHighTh = (unsigned short *)&InputReport[16];
+								unsigned short *pyLowTh = (unsigned short *)&InputReport[18];
+								unsigned short *pyHighTh = (unsigned short *)&InputReport[20];
+
+								if (canWriteXLowTh) {
+									str.Format(_T("%d"), *pxLowTh);
+									_this->m_XLowTh.SetWindowText(str);
+								}
+
+								if (canWriteXHighTh) {
+									str.Format(_T("%d"), *pxHighTh);
+									_this->m_XHighTh.SetWindowText(str);
+								}
+
+								if (canWriteYLowTh) {
+									str.Format(_T("%d"), *pyLowTh);
+									_this->m_YLowTh.SetWindowText(str);
+								}
+
+								if (canWriteYHighTh) {
+									str.Format(_T("%d"), *pyHighTh);
+									_this->m_YHighTh.SetWindowText(str);
+								}
+
+								switch (InputReport[22]) {
+								case 0:
+									_this->GetDlgItem(IDC_SH_TYPE)->SetWindowText(_T("Logitech G27 Shifter"));
+									break;
+								case 1:
+									_this->GetDlgItem(IDC_SH_TYPE)->SetWindowText(_T("Logitech G25 Shifter"));
+									break;
+								case 255:
+								default:
+									_this->GetDlgItem(IDC_SH_TYPE)->SetWindowText(_T("Shifter not detected"));
+									break;
+								}
+							}
+							else
+								_this->GetDlgItem(IDC_SH_TYPE)->SetWindowText(_T(""));
 						}
 						break;
 
 					case 0x03:
+					{
+						unsigned short *pxLowTh = (unsigned short *)&InputReport[3];
+						unsigned short *pxHighTh = (unsigned short *)&InputReport[5];
+						unsigned short *pyLowTh = (unsigned short *)&InputReport[7];
+						unsigned short *pyHighTh = (unsigned short *)&InputReport[9];
+
 						str.Format(_T("%d"), *pxLowTh);
 						_this->m_XLowTh.SetWindowText(str);
 
@@ -507,7 +572,8 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 
 						str.Format(_T("%d"), *pyHighTh);
 						_this->m_YHighTh.SetWindowText(str);
-						break;
+					}
+					break;
 
 					default:
 						break;
@@ -515,7 +581,8 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 				}
 			}
 		}
-		Sleep(0);
+
+		Sleep(Attributes->VersionNumber > 0x207 ? 25 : 0);
 	}
 }
 
@@ -591,6 +658,37 @@ void CSP_ProfilerDlg::OnEnChangeYLowTh()
 	if (yLowTh > 4095) yLowTh = 4095;
 }
 
+void CSP_ProfilerDlg::OnEnSetFocusXLowTh() {
+	canWriteXLowTh = false;
+}
+
+// void CSP_ProfilerDlg::OnEnKillFocusXLowTh() {
+//	canWriteXLowTh = true;
+// }
+
+void CSP_ProfilerDlg::OnEnSetFocusXHighTh() {
+	canWriteXHighTh = false;
+}
+
+// void CSP_ProfilerDlg::OnEnKillFocusXHighTh() {
+//	canWriteXHighTh = true;
+// }
+
+void CSP_ProfilerDlg::OnEnSetFocusYHighTh() {
+	canWriteYHighTh = false;
+}
+
+// void CSP_ProfilerDlg::OnEnKillFocusYHighTh() {
+//	canWriteYHighTh = true;
+// }
+
+void CSP_ProfilerDlg::OnEnSetFocusYLowTh() {
+	canWriteYLowTh = false;
+}
+
+// void CSP_ProfilerDlg::OnEnKillFocusYLowTh() {
+//	canWriteYLowTh = true;
+// }
 
 void CSP_ProfilerDlg::OnBnClickedRead()
 {
@@ -599,6 +697,11 @@ void CSP_ProfilerDlg::OnBnClickedRead()
 
 	BYTE pData[] = { 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	memcpy(&OutputReport, pData, sizeof(pData));
+
+	canWriteXLowTh = true;
+	canWriteXHighTh = true;
+	canWriteYHighTh = true;
+	canWriteYLowTh = true;
 
 	UpdateData(FALSE);
 
@@ -622,6 +725,11 @@ void CSP_ProfilerDlg::OnBnClickedUpdate()
 	*pxHighTh = xHighTh;
 	*pyLowTh  = yLowTh;
 	*pyHighTh = yHighTh;
+
+	canWriteXLowTh = true;
+	canWriteXHighTh = true;
+	canWriteYHighTh = true;
+	canWriteYLowTh = true;
 
 	memcpy(&OutputReport, pData, sizeof(pData));
 
