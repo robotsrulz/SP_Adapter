@@ -38,7 +38,7 @@ I am aware that some shops already sell similar adapters. Unfortunately these de
 
 ## Calibration software (Windows x86):
 
- [SP_Profiler_1.2.exe](binaries/SP_Profiler_1.2.exe)
+ [SP_Profiler.exe](binaries/SP_Profiler.exe)
  
 ## Calibration procedure
 
