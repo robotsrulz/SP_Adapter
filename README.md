@@ -45,7 +45,7 @@ You can move blue lines by altering numbers in corresponding edit fields, hit Up
 
 ## Obtaining the board
 
-PCB is available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I'm also selling a small amount of the boards assembled manually by myself, contact me if you want one.
+PCB is available to order on [kitnic.it](https://kitnic.it/boards/github.com/robotsrulz/SP_Adapter/). I'm testing data for 1clickBOM Chrome plugin to order all parts from major component suppliers (Digikey, Mouser, RS, Newark, Farnell). I'm also selling a small amount of the boards assembled manually by myself, ebay listing: https://www.ebay.com/itm/263418892723, tindie: https://www.tindie.com/products/Robotsrulz/logitech-g25g27-shifterpedals-usb-adapter/
 
 ## USB VID/PID
 
