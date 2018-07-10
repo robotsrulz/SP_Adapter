@@ -37,25 +37,6 @@
 #include "usbd_desc.h"
 #include "usbd_conf.h"
 
-/** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
-  * @{
-  */
-
-/** @defgroup USBD_DESC
-  * @brief USBD descriptors module
-  * @{
-  */
-
-/** @defgroup USBD_DESC_Private_TypesDefinitions
-  * @{
-  */
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Defines
-  * @{
-  */
 #define USBD_VID					0x1209	// see http://pid.codes/
 #define USBD_LANGID_STRING			1033
 #define USBD_MANUFACTURER_STRING	"InterBiometrics"
@@ -65,23 +46,6 @@
 #define USBD_CONFIGURATION_STRING_FS "HID Config"
 #define USBD_INTERFACE_STRING_FS	"HID Interface"
 
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0*/
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Macros
-  * @{
-  */
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Variables
-  * @{
-  */
 uint8_t *     USBD_FS_DeviceDescriptor( USBD_SpeedTypeDef speed , uint16_t *length);
 uint8_t *     USBD_FS_LangIDStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *length);
 uint8_t *     USBD_FS_ManufacturerStrDescriptor ( USBD_SpeedTypeDef speed , uint16_t *length);
@@ -123,7 +87,7 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
     HIBYTE(USBD_VID),           /*idVendor*/
     LOBYTE(USBD_PID_FS),        /*idVendor*/
     HIBYTE(USBD_PID_FS),        /*idVendor*/
-    0x08,                       /*bcdDevice rel. 2.08*/
+    0x09,                       /*bcdDevice rel. 2.09*/
     0x02,
     USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
     USBD_IDX_PRODUCT_STR,       /*Index of product string*/
@@ -149,20 +113,6 @@ __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
   #pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_FunctionPrototypes
-  * @{
-  */
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Functions
-  * @{
-  */
 
 /**
 * @brief  USBD_FS_DeviceDescriptor
@@ -282,16 +232,4 @@ uint8_t *  USBD_FS_InterfaceStrDescriptor( USBD_SpeedTypeDef speed , uint16_t *l
   }
   return USBD_StrDesc;
 }
-/**
-  * @}
-  */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -33,13 +33,6 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MXCONSTANT_H
 #define __MXCONSTANT_H
-  /* Includes ------------------------------------------------------------------*/
-
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private define ------------------------------------------------------------*/
 
 #define SHIFTER_X_Pin GPIO_PIN_0
 #define SHIFTER_X_GPIO_Port GPIOA
@@ -54,24 +47,4 @@
 #define SPI1_nCS_Pin GPIO_PIN_1
 #define SPI1_nCS_GPIO_Port GPIOB
 
-#if BOARD_REV >= 12 /* STM32F042K6T6 */
-# define SHIFTER_SEL1_Pin GPIO_PIN_6
-# define SHIFTER_SEL1_GPIO_Port GPIOB
-# define SHIFTER_SEL2_Pin GPIO_PIN_7
-# define SHIFTER_SEL2_GPIO_Port GPIOB
-#endif
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-*/
-
 #endif /* __MXCONSTANT_H */
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
