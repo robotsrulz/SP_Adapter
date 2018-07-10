@@ -1,5 +1,0 @@
-summary: Logitech G25/G27 shifter/pedals adapter to use as standalone device
-site: https://github.com/robotsrulz/SP_Adapter
-color: green
-bom: Schematics/1-click-bom.tsv
-gerbers: Schematics/Gerbers
