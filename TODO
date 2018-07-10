@@ -1,8 +1,0 @@
-
-TODO list for future releases:
-
-1. Read EEPROM status register (RDSR), if return value not 240 then assume no shifter is present, ignore shifter button statuses.
-
-2. Kalman filter for shifter axis values.
-
-3. Calibration?
