@@ -30,10 +30,10 @@
 #define __USB_HID_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+    /* Includes ------------------------------------------------------------------*/
 #include  "usbd_ioreq.h"
 
 #define HID_EPIN_ADDR                 0x81
@@ -44,12 +44,7 @@
 
 #define USB_HID_CONFIG_DESC_SIZ       41
 #define USB_HID_DESC_SIZ              9
-
-#if BOARD_REV >= 12 /* STM32F042K6T6 */
-# define HID_JOY_REPORT_DESC_SIZE     136
-#else
-# define HID_JOY_REPORT_DESC_SIZE     110
-#endif
+#define HID_JOY_REPORT_DESC_SIZE     100
 
 #define HID_DESCRIPTOR_TYPE           0x21
 #define HID_REPORT_DESC               0x22
@@ -69,22 +64,24 @@
 
 typedef enum
 {
-  HID_IDLE = 0,
-  HID_BUSY,
+    HID_IDLE = 0,
+    HID_BUSY,
 }
 HID_StateTypeDef;
 
 
 __ALIGN_BEGIN typedef struct
 {
-  uint32_t             Protocol;
-  uint32_t             IdleState;
-  uint32_t             AltSetting;
+    uint32_t             Protocol;
+    uint32_t             IdleState;
+    uint32_t             AltSetting;
 
-  uint8_t              HIDRxBuffer[HID_EPOUT_SIZE];
-  uint32_t             HIDRxLength;
+    uint8_t              HIDRxBuffer[HID_EPOUT_SIZE];
+    uint32_t             HIDRxLength;
 
-  HID_StateTypeDef     state;
+    uint8_t              IsReportAvailable;
+
+    HID_StateTypeDef     state;
 }
 USBD_HID_HandleTypeDef __ALIGN_END;
 
@@ -98,13 +95,7 @@ extern unsigned short shifter;
 
 extern USBD_ClassTypeDef  USBD_HID;
 #define USBD_HID_CLASS    &USBD_HID
-/**
-  * @}
-  */
 
-/** @defgroup USB_CORE_Exported_Functions
-  * @{
-  */
 uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
 uint32_t USBD_HID_GetPollingInterval(USBD_HandleTypeDef *pdev);
 

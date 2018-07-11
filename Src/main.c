@@ -89,7 +89,7 @@ unsigned short y_low_th  = Y_AXIS_LOW_TH;
 unsigned short x_high_th = X_AXIS_HIGH_TH;
 unsigned short y_high_th = Y_AXIS_HIGH_TH;
 unsigned short report2send = 0;
-static int mute_xy = 0;
+
 static unsigned short x_axis = 2048;
 static unsigned short y_axis = 2048;
 static volatile uint32_t u100ticks = 0;
@@ -155,7 +155,6 @@ int main(void)
         HAL_StatusTypeDef status;
 
 #if BOARD_REV >= 14
-
         if (SHIFTER_AUTO == shifter)
         {
             // attempt to detect G27 or DFP shifter
@@ -235,21 +234,7 @@ int main(void)
                 else report.buttons &= ~(1 << 6);
                 if (rx_buffer[1] & 16)  report.buttons |= (1 << 7);
                 else report.buttons &= ~(1 << 7);
-
-                if (report.buttons == 6 && report.d_pad == 1)
-                {
-                    mute_xy = 1;
-                }
-                else if (report.buttons == 6 && report.d_pad == 2)
-                {
-                    mute_xy = 0;
-                }
             }
-#if BOARD_REV >= 14
-            // else {
-            //  shifter = SHIFTER_NONE;
-            // }
-#endif
             break;
 
         case HAL_TIMEOUT:
@@ -316,16 +301,8 @@ int main(void)
             }
         }
 
-        if (!mute_xy)
-        {
-            report.axis[0] = x_axis;
-            report.axis[1] = y_axis;
-        }
-        else
-        {
-            report.axis[0] = 2048;
-            report.axis[1] = 2048;
-        }
+        report.axis[0] = x_axis;
+        report.axis[1] = y_axis;
 
 #if BOARD_REV >= 14
         report.threshold[0] = x_low_th;
@@ -347,18 +324,13 @@ int main(void)
         while (hUsbDeviceFS.pClassData
                 && ((USBD_HID_HandleTypeDef *)hUsbDeviceFS.pClassData)->state != HID_IDLE);
 
-        if (!report2send)
-        {
-            USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
-        }
-        else
-        {
-
-            uint8_t buf[11];
+        USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t *)&report, sizeof(report));
+#if 0
+            uint8_t buf[64];
 
             mute_xy = 0;
 
-            buf[0]  = 0x03;
+            buf[0]  = 0x02;
             buf[1]  = 0x01;
             buf[3]  = x_low_th & 0xff;
             buf[4]  = x_low_th >> 8;
@@ -378,24 +350,12 @@ int main(void)
                 EE_WriteVariable(VirtAddVarTab[1], x_high_th);
                 EE_WriteVariable(VirtAddVarTab[2], y_low_th);
                 EE_WriteVariable(VirtAddVarTab[3], y_high_th);
-#if BOARD_REV >= 14
-                if (report2send == 3)
-                    EE_WriteVariable(VirtAddVarTab[4], shifter);
-#endif
+                EE_WriteVariable(VirtAddVarTab[4], shifter);
                 /* Lock the Flash Program Erase controller */
                 HAL_FLASH_Lock();
                 HAL_Delay(10);
             }
-            else
-            {
-                HAL_Delay(50); // wait SP_Profiler to read all previous packets
-            }
-
-            if (USBD_HID_SendReport(&hUsbDeviceFS, buf, sizeof(buf)) == USBD_OK)
-            {
-                report2send = 0;
-            }
-        }
+#endif
     }
 }
 
