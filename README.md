@@ -20,9 +20,9 @@ I am aware that some shops already sell similar adapters. Unfortunately these de
  
  nCS   - A5 - yellow (3)
  
- +3.3V -    - blue   (6)
+ +3.3V -    - blue   (7)
  
- GND   -    - green  (7)
+ GND   -    - green  (6)
  
  XAxis - A0 - white  (4)
  
