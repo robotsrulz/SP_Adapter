@@ -33,17 +33,22 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MXCONSTANT_H
 
-#define SHIFTER_X_Pin GPIO_PIN_0
+#define SHIFTER_X_Pin       GPIO_PIN_0
 #define SHIFTER_X_GPIO_Port GPIOA
-#define SHIFTER_Y_Pin GPIO_PIN_1
+#define SHIFTER_Y_Pin       GPIO_PIN_1
 #define SHIFTER_Y_GPIO_Port GPIOA
-#define THROTTLE_Pin GPIO_PIN_2
-#define THROTTLE_GPIO_Port GPIOA
-#define BRAKE_Pin GPIO_PIN_3
-#define BRAKE_GPIO_Port GPIOA
-#define CLUTCH_Pin GPIO_PIN_4
-#define CLUTCH_GPIO_Port GPIOA
-#define SPI1_nCS_Pin GPIO_PIN_1
-#define SPI1_nCS_GPIO_Port GPIOB
+#define THROTTLE_Pin        GPIO_PIN_2
+#define THROTTLE_GPIO_Port  GPIOA
+#define BRAKE_Pin           GPIO_PIN_3
+#define BRAKE_GPIO_Port     GPIOA
+#define CLUTCH_Pin          GPIO_PIN_4
+#define CLUTCH_GPIO_Port    GPIOA
+#define SPI1_nCS_Pin        GPIO_PIN_1
+#define SPI1_nCS_GPIO_Port  GPIOB
+
+#define SHIFTER_SEL1_Pin    GPIO_PIN_0
+#define SHIFTER_SEL1_GPIO_Port  GPIOF
+#define SHIFTER_SEL2_Pin    GPIO_PIN_1
+#define SHIFTER_SEL2_GPIO_Port  GPIOF
 
 #endif /* __MXCONSTANT_H */

@@ -264,24 +264,17 @@ int main(void)
 */
 void SystemClock_Config(void)
 {
-
     RCC_OscInitTypeDef RCC_OscInitStruct;
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSI48;
-//  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI14|RCC_OSCILLATORTYPE_HSI48;
+    RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 
     RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
     RCC_OscInitStruct.HSI14CalibrationValue = RCC_HSI14CALIBRATION_DEFAULT;
 
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
-    RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -290,8 +283,7 @@ void SystemClock_Config(void)
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                                   |RCC_CLOCKTYPE_PCLK1;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI48;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI48;
 
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -301,8 +293,7 @@ void SystemClock_Config(void)
     }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
-    PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
-//  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
 
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -310,7 +301,6 @@ void SystemClock_Config(void)
     }
 
     HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
     /* SysTick_IRQn interrupt configuration */
@@ -489,11 +479,16 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(SPI1_nCS_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pin Output Level */
+    GPIOF->BSRR = ((uint32_t) SHIFTER_SEL2_Pin << 16) | SHIFTER_SEL1_Pin;
+
+    /*Configure GPIO pin : SPI1_nCS_Pin */
+    GPIO_InitStruct.Pin = SHIFTER_SEL1_Pin | SHIFTER_SEL2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 }
-
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
