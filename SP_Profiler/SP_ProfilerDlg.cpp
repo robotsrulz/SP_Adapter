@@ -41,7 +41,7 @@ extern unsigned short yLowTh;
 extern unsigned short yHighTh;
 
 BYTE OutputReport[256];
-BOOL WRITE_ROPRT;
+BOOL WRITE_ROPRT = FALSE, READ_ROPRT = FALSE;
 
 CSP_ProfilerDlg *_this;
 CFont gearFont;
@@ -289,6 +289,9 @@ void CSP_ProfilerDlg::OnCbnSelchangeHidTargets()
 			m_VIDValue.Format(_T("0x%4X"), Attributes->VendorID);
 			m_VersionNumber.Format(_T("0x%4X"), Attributes->VersionNumber);
 
+			if (Attributes->VersionNumber > 0x207)
+				Use_Setxxx = 1;
+
 			m_PIDValue.Replace(_T(" "), _T("0"));
 			m_VIDValue.Replace(_T(" "), _T("0"));
 			m_VersionNumber.Replace(_T(" "), _T("0"));
@@ -429,6 +432,36 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 			{
 				CancelIo(HidDeviceObject);
 				//InputReport[0]=0;
+
+				unsigned short *pxLowTh = (unsigned short *)&InputReport[3];
+				unsigned short *pxHighTh = (unsigned short *)&InputReport[5];
+				unsigned short *pyLowTh = (unsigned short *)&InputReport[7];
+				unsigned short *pyHighTh = (unsigned short *)&InputReport[9];
+
+				CString str;
+
+				if (READ_ROPRT)
+				{
+					memset(InputReport, 0, sizeof(InputReport));
+					InputReport[0] = 0x02; // Feature report 0x02
+					if (HidD_GetFeature(HidDeviceObject, InputReport, sizeof(InputReport)))
+					{
+						str.Format(_T("%d"), *pxLowTh);
+						_this->m_XLowTh.SetWindowText(str);
+
+						str.Format(_T("%d"), *pxHighTh);
+						_this->m_XHighTh.SetWindowText(str);
+
+						str.Format(_T("%d"), *pyLowTh);
+						_this->m_YLowTh.SetWindowText(str);
+
+						str.Format(_T("%d"), *pyHighTh);
+						_this->m_YHighTh.SetWindowText(str);
+					}
+
+					READ_ROPRT = FALSE;
+				}
+
 				Result = ReadFile
 				(HidDeviceObject,
 					&InputReport,
@@ -437,13 +470,6 @@ DWORD WINAPI CSP_ProfilerDlg::ReadReport(void*)
 					(LPOVERLAPPED)&HIDOverlapped);
 
 				if (Result) {
-
-					unsigned short *pxLowTh = (unsigned short *)&InputReport[3];
-					unsigned short *pxHighTh = (unsigned short *)&InputReport[5];
-					unsigned short *pyLowTh = (unsigned short *)&InputReport[7];
-					unsigned short *pyHighTh = (unsigned short *)&InputReport[9];
-
-					CString str;
 
 					switch (InputReport[0]) {
 					case 0x01:
@@ -595,14 +621,20 @@ void CSP_ProfilerDlg::OnEnChangeYLowTh()
 void CSP_ProfilerDlg::OnBnClickedRead()
 {
 	// TODO: добавьте свой код обработчика уведомлений
-	UpdateData(TRUE);
 
-	BYTE pData[] = { 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	memcpy(&OutputReport, pData, sizeof(pData));
+	if (!Use_Setxxx)
+	{
+		UpdateData(TRUE);
 
-	UpdateData(FALSE);
+		BYTE pData[] = { 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		memcpy(&OutputReport, pData, sizeof(pData));
 
-	WRITE_ROPRT = TRUE;
+		UpdateData(FALSE);
+
+		WRITE_ROPRT = TRUE;
+	}
+	else
+		READ_ROPRT = TRUE;
 }
 
 
@@ -612,6 +644,11 @@ void CSP_ProfilerDlg::OnBnClickedUpdate()
 	UpdateData(TRUE);
 
 	BYTE pData[] = { 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+	if (Use_Setxxx)
+	{
+		// overwrite second byte
+	}
 
 	unsigned short *pxLowTh = (unsigned short *)&pData[3];
 	unsigned short *pxHighTh = (unsigned short *)&pData[5];
