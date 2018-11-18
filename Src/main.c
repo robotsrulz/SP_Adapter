@@ -239,7 +239,6 @@ int main(void)
 
         if (report2send == 2)
         {
-            /* Unlock the Flash Program Erase controller */
             HAL_FLASH_Unlock();
 
             EE_WriteVariable(VirtAddVarTab[0], x_low_th);
@@ -247,7 +246,6 @@ int main(void)
             EE_WriteVariable(VirtAddVarTab[2], y_low_th);
             EE_WriteVariable(VirtAddVarTab[3], y_high_th);
 
-            /* Lock the Flash Program Erase controller */
             HAL_FLASH_Lock();
             report2send = 0;
         }

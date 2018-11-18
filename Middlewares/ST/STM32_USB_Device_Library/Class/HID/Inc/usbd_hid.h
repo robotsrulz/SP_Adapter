@@ -74,10 +74,10 @@ extern "C" {
         uint32_t             IdleState;
         uint32_t             AltSetting;
 
-        uint8_t             IsReportAvailable;
-
         uint8_t              HIDRxBuffer[HID_EPOUT_SIZE];
         uint32_t             HIDRxLength;
+
+        uint8_t             IsReportAvailable;
 
         HID_StateTypeDef     state;
     }

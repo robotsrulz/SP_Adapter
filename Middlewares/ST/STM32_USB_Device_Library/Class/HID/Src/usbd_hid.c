@@ -273,7 +273,7 @@ static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev,
 {
     uint16_t len = 0;
     uint8_t  *pbuf = NULL;
-    USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*) pdev->pClassData;
+    USBD_HID_HandleTypeDef *hhid = (USBD_HID_HandleTypeDef*) pdev->pClassData;
 
     switch (req->bmRequest & USB_REQ_TYPE_MASK)
     {
@@ -285,9 +285,7 @@ static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev,
             break;
 
         case HID_REQ_GET_PROTOCOL:
-            USBD_CtlSendData (pdev,
-                              (uint8_t *)&hhid->Protocol,
-                              1);
+            USBD_CtlSendData (pdev, (uint8_t *)&hhid->Protocol, 1);
             break;
 
         case HID_REQ_SET_IDLE:
@@ -295,23 +293,22 @@ static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev,
             break;
 
         case HID_REQ_GET_IDLE:
-            USBD_CtlSendData (pdev,
-                              (uint8_t *)&hhid->IdleState,
-                              1);
+            USBD_CtlSendData(pdev, (uint8_t *)&hhid->IdleState, 1);
             break;
 
         case HID_REQ_SET_REPORT:
             hhid->IsReportAvailable = 1;
-            USBD_CtlPrepareRx(pdev, hhid->HIDRxBuffer, (uint8_t)(req->wLength) /* HID_EPOUT_SIZE */);
+            USBD_CtlPrepareRx(pdev, hhid->HIDRxBuffer, (uint8_t)(req->wLength));
             break;
 
         case HID_REQ_GET_REPORT:
         {
-            uint8_t buf[11] = { req->wValue & 0x0f };
+            static uint8_t buf[11];
 
             switch(req->wValue & 0x0f)
             {
             case 2:
+                buf[0]  = req->wValue & 0x0f;
                 buf[1]  = 0x01;
                 buf[3]  = x_low_th & 0xff;
                 buf[4]  = x_low_th >> 8;
