@@ -143,7 +143,7 @@ int main(void)
         {
         case HAL_OK:
             report.buttons[0] = 0x00;
-            report.buttons[1] = 0x00;
+            // report.buttons[1] = 0x00;
             report.buttons[2] = 0x00;
 
             if ((rx_buffer[0] & 0xff) != 0xff)   // if all bits of rx_buffer[0] is 1 assume shifter is disconnected
