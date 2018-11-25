@@ -8,18 +8,22 @@ I am aware that some shops already sell similar adapters. Unfortunately these de
 
 Hardware part is based on STM32F042 microcontroller(TSSOP20), Schematics folder contains Gerber files as well as DipTrace source files.
 
-
 ![Adapter](Schematics/adapter.jpg)
 
-"Stable" firmware for board revisions 1.0 and 1.1:
+New firmware for board revisions 1.0 and 1.1 with G25 sequential mode support:
 
- [hse-2.07.dfu](binaries/hse-2.07.dfu)
+ [hse-2.09a.dfu](binaries/hse-2.09a.dfu)
+ [SP_Profiler](binaries/SP_Profiler_209.exe)
  
- [hse-2.07.hex](binaries/hse-2.07.hex)
+Previous firmware for board revisions 1.0 and 1.1:
+
+ [hse-2.07a.dfu](binaries/hse-2.07a.dfu)
+ [SP_Profiler](binaries/SP_Profiler_1.2.exe)
  
 Firmware for STM32F103C8T6 "Blue Pill" development board:
 
  [bluepill-2.07.hex](https://github.com/robotsrulz/SP_Adapter/blob/stm32f103c8t6/binaries/bluepill-2.07.hex)
+ [SP_Profiler](binaries/SP_Profiler_1.2.exe)
  
 ## Firmware update
 
